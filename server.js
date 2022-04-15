@@ -4,7 +4,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const { router } = require("./router");
-const {errorMiddleware} = require("./middlewares/errorMiddleware");
+const { errorMiddleware } = require("./middlewares/errorMiddleware");
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -17,9 +17,9 @@ app.use(
     origin: process.env.CLIENT_URL,
   })
 );
-app.use("/api/v1/", router);
+app.use("/api/v1/", router); //"/api/v1/",
 //TODO: переделать заглушку для не валидных запросов
-app.use("*", (req, res) => res.sendStatus(400));
+// app.use("*", (req, res) => res.sendStatus(400));
 app.use(errorMiddleware);
 
 const start = async () => {

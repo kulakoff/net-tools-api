@@ -44,13 +44,13 @@ class UserController {
   async logout(req, res, next) {
     try {
       if (req.cookies.refreshToken) {
-        const { refreshToken } = req.cookies.refreshToken;
+        const refreshToken = req.cookies.refreshToken;
         console.log(`|DEBUG| LOGOUT |refreshToken | ${refreshToken}`);
         const token = await userService.logout(refreshToken);
         res.clearCookie("refreshToken");
         return res.json(token);
       } else {
-        next(ApiError.BadRequest("Нет токена"));
+        next(ApiError.BadRequest("Отсутствует токен"));
       }
     } catch (error) {
       next(error);

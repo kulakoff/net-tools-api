@@ -72,6 +72,7 @@ class UserService {
   }
 
   async logout(refreshToken) {
+    console.log("userService.logout: ", refreshToken);
     const token = await tokenService.removeToken(refreshToken);
     return token;
   }
