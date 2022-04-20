@@ -27,7 +27,7 @@ class UserController {
   async login(req, res, next) {
     try {
       const { email, password } = req.body;
-      console.log("LOGIN: ", email, password);
+      console.log(`|DEBUG| LOGIN: ${email} | PASS: ${password} |`);
       const userData = await userService.login(email, password);
 
       //генерирует токен
@@ -45,7 +45,6 @@ class UserController {
     try {
       if (req.cookies.refreshToken) {
         const refreshToken = req.cookies.refreshToken;
-        console.log(`|DEBUG| LOGOUT |refreshToken | ${refreshToken}`);
         const token = await userService.logout(refreshToken);
         res.clearCookie("refreshToken");
         return res.json(token);
@@ -71,9 +70,7 @@ class UserController {
   async refresh(req, res, next) {
     try {
       const { refreshToken } = req.cookies;
-      console.log("|DEBUG| REFRESH: ", refreshToken);
       const userData = await userService.refresh(refreshToken);
-
       //генерирует токен
       res.cookie("refreshToken", userData.refreshToken, {
         maxAge: 7 * 24 * 60 * 1000, //7 day

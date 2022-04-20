@@ -23,6 +23,7 @@ const authMiddleware = (req, res, next) => {
     }
 
     req.user = userData;
+    console.table(req.user)
     next();
   } catch (error) {
     console.log("4");

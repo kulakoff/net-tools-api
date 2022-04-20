@@ -1,4 +1,5 @@
-const { Schema, model } = require("mongoose");
+const { Schema } = require("mongoose");
+const { authConnection } = require("../dbConnections/connections");
 
 const UserSchema = new Schema(
   {
@@ -8,7 +9,11 @@ const UserSchema = new Schema(
     isActivated: { type: Boolean, default: false },
     activationLink: { type: String },
   },
-  { versionKey: false, collection: "users" }
+  {
+    versionKey: false,
+    // collection: "users"
+  }
 );
 
-module.exports = model("User", UserSchema);
+const UserModel = authConnection.model("User", UserSchema, "users");
+module.exports = { UserModel };

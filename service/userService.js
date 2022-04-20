@@ -1,4 +1,4 @@
-const UserModel = require("../models/userModel");
+const {UserModel} = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const mailService = require("./mailService");
@@ -17,7 +17,7 @@ class UserService {
       //   `Пользователь с почтовым адресом ${email} уже зарегистрирован!`
       // );
     }
-    const hoashPassword = await bcrypt.hash(password, 3);
+    const hoashPassword = await bcrypt.hash(password, 10);
     //создаем ссылку для активации
     const activationLink = uuid.v4();
     const user = await UserModel.create({
@@ -72,23 +72,17 @@ class UserService {
   }
 
   async logout(refreshToken) {
-    console.log("userService.logout: ", refreshToken);
     const token = await tokenService.removeToken(refreshToken);
     return token;
   }
 
   async refresh(refreshToken) {
-    console.log("User service. refresh");
     if (!refreshToken) {
-      console.log("User service. no refreshToken");
       throw ApiError.UnauthorizedError();
     }
     const userData = tokenService.validateRefreshToken(refreshToken);
-    console.log("|DEBUG| userData: ", userData);
     const tokenFromDb = await tokenService.findToken(refreshToken);
-    console.log("|DEBUG| tokenFromDb: ", tokenFromDb);
     if (!userData || !tokenFromDb) {
-      console.log("User service, not tokenFromDb");
       throw ApiError.UnauthorizedError();
     }
 
