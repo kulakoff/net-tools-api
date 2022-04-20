@@ -1,13 +1,27 @@
-const { DeviceModel } = require("../models/cpeModel");
+const { CpeModel } = require("../models/cpeModel");
 const ApiError = require("./../exceptions/apiError");
 
 class DeviceService {
-  async getDevice(device) {
-    // const device = await DeviceModel.findOne()
-
+  async getDeviceBySN(value) {
     try {
-      return { cpe: "params" };
+      const deviceData = await CpeModel.findOne({
+        "_deviceInfo.serialNumber": value,
+      });
+      return deviceData;
     } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async getDeviceByMAC(value) {
+    try {
+      const deviceData = await CpeModel.findOne({
+        "_deviceInfo.macAddress": value,
+      });
+      return deviceData;
+    } catch (error) {
+      console.log(error);
       return ApiError.BadRequest();
     }
   }
