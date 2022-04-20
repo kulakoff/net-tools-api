@@ -4,7 +4,7 @@ const { TokenModel } = require("../models/tokenModel");
 class TokenService {
   generateTokens(payload) {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
-      expiresIn: "1m",
+      expiresIn: "15m",
     });
     const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
       expiresIn: "7d",
@@ -12,11 +12,8 @@ class TokenService {
     return { accessToken, refreshToken };
   }
   valdateAccessToken(token) {
-    console.log("valdateAccessToken: ", token);
     try {
-      console.log("DEBUG valdateAccessToken");
       const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-      console.log("valdateAccessToken userData: ", userData);
       return userData;
     } catch (error) {
       return null;

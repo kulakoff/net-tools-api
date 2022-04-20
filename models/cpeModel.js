@@ -1,4 +1,5 @@
-const { Schema, model } = require("mongoose");
+const { Schema } = require("mongoose");
+const { deviceConnection } = require("../dbConnections/connections");
 
 const CpeScheme = new Schema(
   {
@@ -81,8 +82,9 @@ const CpeScheme = new Schema(
       required: true,
     },
   },
-  { versionKey: false },
-  { collection: "devices" }
+  { versionKey: false }
+  // { collection: "devices" }
 );
 
-module.exports = mongoose.model("CPE", CpeScheme, "devices");
+const CpeModel = deviceConnection.model("CPE", CpeScheme, "devices");
+module.exports = { CpeModel };

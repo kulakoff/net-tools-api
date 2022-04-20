@@ -16,8 +16,7 @@ const authMiddleware = (req, res, next) => {
     }
 
     const userData = tokenService.valdateAccessToken(accessToken);
-    console.log("authMiddleware userData: ", userData);
-    if (!userData) {
+        if (!userData) {
       console.log("3");
       return next(ApiError.UnauthorizedError());
     }

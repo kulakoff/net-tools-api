@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema } = require("mongoose");
 const { authConnection } = require("../dbConnections/connections");
 
 const TokenSchema = new Schema(
