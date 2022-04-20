@@ -24,7 +24,7 @@ app.use(errorMiddleware);
 
 const start = async () => {
   try {
-    await mongoose.connect(process.env.DB_URL, {
+    await mongoose.connect(process.env.DB_URL_AUTH, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
