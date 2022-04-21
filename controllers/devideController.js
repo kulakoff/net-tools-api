@@ -29,7 +29,7 @@ class DeviceController {
   }
   async setDevice(req, res, next) {
     try {
-      console.log("device post");
+      console.log("device post",req.body);
       res.json({ method: "post" });
     } catch (error) {
       next(error);
