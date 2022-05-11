@@ -14,14 +14,13 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, "http://localhost:3001"],
   })
 );
 app.use("/api/v1/", router); //"/api/v1/",
 //TODO: переделать заглушку для не валидных запросов
-app.use("*", (req, res) => res.sendStatus(400));
+// app.use("*", (req, res) => res.sendStatus(400));
 app.use(errorMiddleware);
-app.disable("x-powered-by");
 
 const start = async () => {
   try {

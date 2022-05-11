@@ -1,4 +1,4 @@
-const {UserModel} = require("../models/userModel");
+const { UserModel } = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const mailService = require("./mailService");
@@ -54,12 +54,19 @@ class UserService {
   async login(email, password) {
     const user = await UserModel.findOne({ email });
     if (!user) {
-      throw ApiError.BadRequest(`Пользователь ${email} не был найден`);
+      throw ApiError.UnprocessableEntity(
+        `Пользователь ${email} не был найден`,
+        { email: "email не найден" }
+      );
     }
     const isPassEqual = await bcrypt.compare(password, user.password);
     if (!isPassEqual) {
-      throw ApiError.BadRequest(
-        "Некорректные данные для авторизации, проверьте email и pass"
+      throw ApiError.UnprocessableEntity(
+        "Некорректные данные для авторизации, проверьте email или pass",
+        {
+          email: "Проверьте правильность ввода email",
+          password: "Проверьте правильность ввода passwd",
+        }
       );
     }
     const userDto = new UserDto(user);
