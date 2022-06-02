@@ -30,6 +30,7 @@ const start = async () => {
     // });
     app.listen(PORT, () => {
       console.log(`server started on port 0.0.0.0:${PORT}`);
+      console.log(`ENV_TARGET: ${process.env.ENV_TARGET}`)
     });
   } catch (e) {
     console.log(e);
