@@ -11,6 +11,7 @@ class TokenService {
     });
     return { accessToken, refreshToken };
   }
+
   valdateAccessToken(token) {
     try {
       const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
@@ -19,6 +20,7 @@ class TokenService {
       return null;
     }
   }
+  
   validateRefreshToken(token) {
     try {
       const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
