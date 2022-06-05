@@ -16,7 +16,11 @@ class DeviceController {
             return res.json(deviceDataBySN);
           case "macAddress":
             const deviceDataByMAC = await deviceService.getDeviceByMAC(value);
-            return res.json(deviceDataByMAC);
+            if (deviceDataByMAC !== null) {
+              return res.json(deviceDataByMAC);
+            }else {
+              next(ApiError.NotFound(`Устройство не найдено, проверьте корректность введенных данных`));
+            }
         }
         // const device = await deviceService.getDevice(req.query)
       } else {

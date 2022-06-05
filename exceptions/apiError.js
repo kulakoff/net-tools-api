@@ -15,8 +15,12 @@ module.exports = class ApiError extends Error {
   static BadRequest(message, errors = []) {
     return new ApiError(400, message, errors);
   }
+  
+  static NotFound(message, errors = []) {
+    return new ApiError(404, message, errors);
+  }
 
-  static UnprocessableEntity(message, errors = []){
+  static UnprocessableEntity(message, errors = []) {
     return new ApiError(422, message, errors);
-  } 
+  }
 };

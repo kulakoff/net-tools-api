@@ -7,8 +7,8 @@ const UserDto = require("./../dtos/userDto");
 const ApiError = require("./../exceptions/apiError");
 
 class UserService {
-  async registration(email, password, phone) {
-    const candidate = await UserModel.findOne({ email, phone });
+  async registration(firstName, lastName, email, phoneNumber, password) {
+    const candidate = await UserModel.findOne({ email, phoneNumber });
     if (candidate) {
       throw ApiError.BadRequest(
         `Пользователь с почтовым адресом ${email} уже зарегистрирован!`
@@ -21,9 +21,11 @@ class UserService {
     //создаем ссылку для активации
     const activationLink = uuid.v4();
     const user = await UserModel.create({
+      firstName,
+      lastName,
       email,
+      phoneNumber,
       password: hoashPassword,
-      phone,
       activationLink,
     });
     //отправка письма для подтверждения регистрации
@@ -41,6 +43,7 @@ class UserService {
       user: userDto,
     };
   }
+
   async activate(activationLink) {
     const user = await UserModel.findOne({ activationLink: activationLink });
     if (!user) {

@@ -19,7 +19,11 @@ class DeviceService {
       const deviceData = await CpeModel.findOne({
         "_deviceInfo.macAddress": value,
       });
-      return deviceData;
+      if (deviceData !== null) {
+        return deviceData;
+      } else {
+        return null;
+      }
     } catch (error) {
       console.log(error);
       return ApiError.BadRequest();
@@ -64,7 +68,6 @@ class DeviceService {
       return ApiError.BadRequest("Не возможно изменить параметры");
     }
   }
-
 }
 
 module.exports = new DeviceService();

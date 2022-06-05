@@ -3,9 +3,11 @@ const { authConnection } = require("../dbConnections/connections");
 
 const UserSchema = new Schema(
   {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     email: { type: String, unique: true, require: true },
+    phoneNumber: { type: String, unique: true, require: true },
     password: { type: String, require: true },
-    phone: { type: String, unique: true, require: true },
     isActivated: { type: Boolean, default: false },
     activationLink: { type: String },
   },
