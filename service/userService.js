@@ -49,7 +49,8 @@ class UserService {
     if (!user) {
       // throw new Error("Некорректная ссылка активации");
       throw ApiError.BadRequest("Некорректная ссылка активации");
-    }
+    } else if (user.isActivated)
+      throw ApiError.BadRequest("Некорректная ссылка активации");
     user.isActivated = true;
     await user.save();
   }

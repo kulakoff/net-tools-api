@@ -7,6 +7,7 @@ const mongoseeOptions = {
   autoIndex: true,
   connectTimeoutMS: 10000,
   socketTimeoutMS: 30000,
+  
 };
 
 const makeNewConnection = (uri) => {

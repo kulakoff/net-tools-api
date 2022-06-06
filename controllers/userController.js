@@ -11,8 +11,14 @@ class UserController {
           ApiError.BadRequest("Ошибка при валидации", errors.array())
         );
       }
-      const { firstName, lastName, email, phoneNumber, password  } = req.body;
-      const userData = await userService.registration(firstName, lastName, email, phoneNumber, password);
+      const { firstName, lastName, email, phoneNumber, password } = req.body;
+      const userData = await userService.registration(
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        password
+      );
       res.cookie("refreshToken", userData.refreshToken, {
         maxAge: 7 * 24 * 60 * 1000, //7 day
         httpOnly: true,
@@ -60,7 +66,6 @@ class UserController {
   async activate(req, res, next) {
     try {
       const activationLink = req.params.link;
-      console.table("|DEBUG| activate link: ", activationLink);
       await userService.activate(activationLink);
       return res.redirect(process.env.CLIENT_URL);
     } catch (error) {
