@@ -28,6 +28,11 @@ class UserService {
       password: hoashPassword,
       activationLink,
     });
+
+    //TODO:
+    //
+    // Сделать интеграцияю с почтовым сервисом для отправки писем с подтверждением регистрации. Яндекс и прочие сервисы банят
+    //
     //отправка письма для подтверждения регистрации
     // await mailService.sendActivationMail(
     //   email,
@@ -60,13 +65,13 @@ class UserService {
     if (!user) {
       throw ApiError.UnprocessableEntity(
         `Пользователь ${email} не был найден`,
-        { email: "email не найден" }
+        { email: `&${email} не найден` }
       );
     }
     const isPassEqual = await bcrypt.compare(password, user.password);
     if (!isPassEqual) {
       throw ApiError.UnprocessableEntity(
-        "Некорректные данные для авторизации, проверьте email или pass",
+        "Некорректные данные для авторизации, проверьте email или passwd",
         {
           email: "Проверьте правильность ввода email",
           password: "Проверьте правильность ввода passwd",
@@ -75,6 +80,8 @@ class UserService {
     }
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
+    console.log("| UserService | login | token | ");
+    console.log(tokens);
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
     return {
       ...tokens,
@@ -83,8 +90,19 @@ class UserService {
   }
 
   async logout(refreshToken) {
-    const token = await tokenService.removeToken(refreshToken);
-    return token;
+    const tokenCandidate = await tokenService.findToken(refreshToken);
+    console.log("tokenCandidate: ", tokenCandidate);
+    if (tokenCandidate) {
+      tokenCandidate.refreshToken = tokenCandidate.refreshToken.filter(
+        (rTokenItem) => {
+          rTokenItem !== refreshToken;
+        }
+      );
+    }
+    const result = await tokenService.saveToken(tokenCandidate);
+
+    // const token = await tokenService.removeToken(refreshToken);
+    return result;
   }
 
   async refresh(refreshToken) {

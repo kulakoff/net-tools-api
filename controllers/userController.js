@@ -32,9 +32,9 @@ class UserController {
   async login(req, res, next) {
     try {
       const { email, password } = req.body;
-      console.group("inputValues");
+      console.group("LOGIN DATA");
       console.table({ email, password });
-      console.groupEnd("inputValues");
+      console.groupEnd("LOGIN DATA");
       const userData = await userService.login(email, password);
 
       //генерирует токен
@@ -50,14 +50,18 @@ class UserController {
 
   async logout(req, res, next) {
     try {
-      console.log("req.cookies.refreshToken: ", req.cookies.refreshToken);
-      if (req.cookies.refreshToken) {
-        const refreshToken = req.cookies.refreshToken;
+      const { refreshToken } = req.cookies;
+      console.log("req.cookies.refreshToken: ", refreshToken);
+      if (refreshToken) {
+        // const refreshToken = req.cookies.refreshToken;
+
+        // Is refreshToken in db?
         const token = await userService.logout(refreshToken);
         res.clearCookie("refreshToken");
-        return res.json(token);
+        return res.json(token); ///???? переделать ответ
+
       } else {
-        next(ApiError.BadRequest("Отсутствует токен доступа"));
+        next(ApiError.BadRequest("Token not found"));
       }
     } catch (error) {
       next(error);
@@ -85,6 +89,9 @@ class UserController {
       });
       res.json(userData);
     } catch (error) {
+      //TODO:
+      //переделать очистку refreshToken из cookie
+      res.clearCookie("refreshToken");
       next(error);
     }
   }

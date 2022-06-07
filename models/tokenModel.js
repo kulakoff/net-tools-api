@@ -4,12 +4,13 @@ const { authConnection } = require("../dbConnections/connections");
 const TokenSchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: "User" },
-    refreshToken: { type: String, require: true },
+    refreshToken:[String]
+    // refreshToken: { type: String, require: true },
   },
   {
     // collection: "tokens",
-    versionKey: false,
-    timestamps: true 
+    // versionKey: false,
+    timestamps: true,
   }
 );
 
