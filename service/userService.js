@@ -80,8 +80,8 @@ class UserService {
     }
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
-    console.log("| UserService | login | token | ");
-    console.log(tokens);
+    // console.log("| UserService | login | token | ");
+    // console.log(tokens);
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
     return {
       ...tokens,
@@ -91,15 +91,18 @@ class UserService {
 
   async logout(refreshToken) {
     const tokenCandidate = await tokenService.findToken(refreshToken);
-    console.log("tokenCandidate: ", tokenCandidate);
+    console.log("tokenCandidate1 : ", tokenCandidate);
     if (tokenCandidate) {
-      tokenCandidate.refreshToken = tokenCandidate.refreshToken.filter(
-        (rTokenItem) => {
-          rTokenItem !== refreshToken;
-        }
+      tokenCandidate.refreshToken = await tokenCandidate.refreshToken.filter(
+        (rTokenItem) => rTokenItem !== refreshToken
       );
     }
-    const result = await tokenService.saveToken(tokenCandidate);
+    console.log("tokenCandidate2 : ", tokenCandidate);
+    console.log("USERID: ", tokenCandidate.user);
+    const result = await tokenService.saveToken2(
+      tokenCandidate.user,
+      tokenCandidate
+    );
 
     // const token = await tokenService.removeToken(refreshToken);
     return result;
@@ -111,6 +114,8 @@ class UserService {
     }
     const userData = tokenService.validateRefreshToken(refreshToken);
     const tokenFromDb = await tokenService.findToken(refreshToken);
+    //TODO
+    //проверка скомпрометированных токенов
     if (!userData || !tokenFromDb) {
       throw ApiError.UnauthorizedError();
     }

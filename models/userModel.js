@@ -12,7 +12,7 @@ const UserSchema = new Schema(
     activationLink: { type: String },
   },
   {
-    // versionKey: false,
+    versionKey: false,
     timestamps: true,
     // collection: "users"
   }

@@ -9,7 +9,7 @@ const TokenSchema = new Schema(
   },
   {
     // collection: "tokens",
-    // versionKey: false,
+    versionKey: false,
     timestamps: true,
   }
 );
