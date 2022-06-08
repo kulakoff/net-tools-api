@@ -36,6 +36,7 @@ class UserController {
       console.table({ email, password });
       console.groupEnd("LOGIN DATA");
       const userData = await userService.login(email, password);
+      // console.log("UserController-login.userData: ",userData)
 
       //генерирует токен
       res.cookie("refreshToken", userData.refreshToken, {
@@ -58,7 +59,8 @@ class UserController {
         // Is refreshToken in db?
         const token = await userService.logout(refreshToken);
         res.clearCookie("refreshToken");
-        return res.json(token); ///???? переделать ответ
+        return res.sendStatus(204)
+        // return res.json(token); ///???? переделать ответ
 
       } else {
         next(ApiError.BadRequest("Token not found"));

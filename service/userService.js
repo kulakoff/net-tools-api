@@ -65,7 +65,7 @@ class UserService {
     if (!user) {
       throw ApiError.UnprocessableEntity(
         `Пользователь ${email} не был найден`,
-        { email: `&${email} не найден` }
+        { email: `${email} не найден` }
       );
     }
     const isPassEqual = await bcrypt.compare(password, user.password);
@@ -81,7 +81,7 @@ class UserService {
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
     // console.log("| UserService | login | token | ");
-    // console.log(tokens);
+    // console.log("tokenService.generateTokens: ", tokens);
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
     return {
       ...tokens,
@@ -90,40 +90,53 @@ class UserService {
   }
 
   async logout(refreshToken) {
-    const tokenCandidate = await tokenService.findToken(refreshToken);
-    console.log("tokenCandidate1 : ", tokenCandidate);
-    if (tokenCandidate) {
-      tokenCandidate.refreshToken = await tokenCandidate.refreshToken.filter(
-        (rTokenItem) => rTokenItem !== refreshToken
-      );
-    }
-    console.log("tokenCandidate2 : ", tokenCandidate);
-    console.log("USERID: ", tokenCandidate.user);
-    const result = await tokenService.saveToken2(
-      tokenCandidate.user,
-      tokenCandidate
-    );
+    // const tokenCandidate = await tokenService.findToken(refreshToken);
+    console.log("|UserService.logout | refreshToken : ", refreshToken);
+
+    // if (tokenCandidate) {
+    //   tokenCandidate.refreshToken = await tokenCandidate.refreshToken.filter(
+    //     (rTokenItem) => rTokenItem !== refreshToken
+    //   );
+    // }
+
+    // console.log("tokenCandidate2 : ", tokenCandidate);
+    // console.log("USERID: ", tokenCandidate.user);
+    // const result = await tokenService.saveToken2(
+    //   tokenCandidate.user,
+    //   tokenCandidate
+    // );
 
     // const token = await tokenService.removeToken(refreshToken);
-    return result;
+    const clearToken = await tokenService.clearToken(refreshToken);
+    return clearToken; ///;
   }
 
   async refresh(refreshToken) {
     if (!refreshToken) {
       throw ApiError.UnauthorizedError();
     }
+
+    //Проверка jwt token (jwt.verify)
     const userData = tokenService.validateRefreshToken(refreshToken);
+    // Поиск токена в базе
     const tokenFromDb = await tokenService.findToken(refreshToken);
+
     //TODO
     //проверка скомпрометированных токенов
     if (!userData || !tokenFromDb) {
       throw ApiError.UnauthorizedError();
     }
 
+    // Поиск пользователя в БД по данным из токена
     const user = await UserModel.findById(userData.id);
+    // console.log("|UserService.logout | user : ", user);
+    // Создаем payload для токена который содержит данные о пользователе (return id, email, isActivated)
     const userDto = new UserDto(user); //return id, email, isActivated
     const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+
+    //TODO:
+    // Сохраняем данные в базу. Заменить стрый токен на новый
+    await tokenService.updateToken(userDto.id, tokens.refreshToken, refreshToken);
     return {
       ...tokens,
       user: userDto,

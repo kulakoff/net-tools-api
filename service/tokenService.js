@@ -24,7 +24,7 @@ class TokenService {
   validateRefreshToken(token) {
     try {
       const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-      console.log("validateRefreshToken userData:", userData);
+      // console.log("validateRefreshToken userData:", userData);
       return userData;
     } catch (error) {
       return null;
@@ -32,31 +32,52 @@ class TokenService {
   }
 
   async saveToken(userId, refreshToken) {
-    const tokenData = await TokenModel.findOne({ user: userId });
-    console.log("TokenService.saveToken | tokenData: ", tokenData);
-    if (tokenData) {
-      tokenData.refreshToken = await tokenData.refreshToken.filter(
-        (rt) => rt !== refreshToken
-      ); ///
-      console.log("QQQ",tokenData.refreshToken)
-      // tokenData.refreshToken = [...tokenData.refreshToken, refreshToken];
+    //поиск документа
+    const existToken = await TokenModel.findOne({ user: userId });
+    // console.log("TokenService.saveToken:tokenData: ", existToken);
+    if (existToken) {
+      console.log("|saveToken| document exist, addded new token ...  ");
 
-      return tokenData.save();
+      // existToken.refreshToken = await existToken.refreshToken.filter(
+      //   (rt) => rt !== refreshToken
+      // ); ///
+
+      existToken.refreshToken = [...existToken.refreshToken, refreshToken];
+      console.log("existToken.refreshToken new: ", existToken.refreshToken);
+      return await existToken.save();
     }
+    //если документ отсутствует - создаем  документ содержащий  refreshToken
+    console.log(
+      "|saveToken| document net found , addded new document with token ...  "
+    );
     const token = await TokenModel.create({ user: userId, refreshToken });
     return token;
   }
 
-  async saveToken2(userId, newRefreshToken) {
+  // service update fefresh token
+  async updateToken(userId, newRefreshToken, oldRefreshToken) {
     const tokenData = await TokenModel.findOne({ user: userId });
-    console.log("TokenService.saveToken2 | tokenData: ", tokenData);
-    console.log("newRefreshToken: ", newRefreshToken);
     if (tokenData) {
-      tokenData.refreshToken = [...newRefreshToken.refreshToken];
+      const filteredToken = await tokenData.refreshToken.filter(
+        (rt) => rt !== oldRefreshToken
+      );
+      // console.log("| updateToken | filteredToken: ",filteredToken)
+      tokenData.refreshToken = [...filteredToken, newRefreshToken];
+      // console.log("| updateToken | tokenData: ", tokenData);
+      return tokenData.save();
+    }
+  }
+
+  async clearToken(refreshToken) {
+    const tokenData = await TokenModel.findOne({ refreshToken });
+    console.log("TokenService.clearToken | tokenData: ", tokenData);
+    // console.log("newRefreshToken: ", newRefreshToken);
+    if (tokenData) {
+      tokenData.refreshToken = await tokenData.refreshToken.filter(
+        (rt) => rt !== refreshToken
+      ); ///
       return await tokenData.save();
     }
-    // const token = await TokenModel.create({ user: userId, refreshToken });
-    // return token;
   }
 
   async removeToken(refreshToken) {
