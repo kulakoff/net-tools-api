@@ -4,6 +4,7 @@ const { body } = require("express-validator");
 
 const userController = require("./../controllers/userController");
 const deviceController = require("./../controllers/devideController");
+const metersController = require("./../controllers/metersController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
 router.post(
@@ -19,5 +20,7 @@ router.get("/refresh", userController.refresh);
 router.get("/users", authMiddleware, userController.getUsers);
 router.get("/device", authMiddleware, deviceController.getDevice);
 router.post("/device", authMiddleware, deviceController.setDevice);
+router.get("/meters", authMiddleware, metersController.getMeters);
+router.post("/meters", authMiddleware, metersController.sendMeters);
 
 module.exports = { router };
