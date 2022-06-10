@@ -1,7 +1,7 @@
 const { UserModel } = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
-const mailService = require("./mailService");
+const mailApiService = require("./mailApiService");
 const tokenService = require("./tokenService");
 const UserDto = require("./../dtos/userDto");
 const ApiError = require("./../exceptions/apiError");
@@ -34,10 +34,10 @@ class UserService {
     // Сделать интеграцияю с почтовым сервисом для отправки писем с подтверждением регистрации. Яндекс и прочие сервисы банят
     //
     //отправка письма для подтверждения регистрации
-    // await mailService.sendActivationMail(
-    //   email,
-    //   `${process.env.API_URL}/api/v1/activate/${activationLink}`
-    // );
+    await mailApiService.sendActivationMail(
+      email,
+      `${process.env.API_URL}/api/v1/activate/${activationLink}`
+    );
 
     //генерируем пару токенов
     const userDto = new UserDto(user); //return id, email, isActivated

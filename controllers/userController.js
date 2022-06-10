@@ -59,9 +59,8 @@ class UserController {
         // Is refreshToken in db?
         const token = await userService.logout(refreshToken);
         res.clearCookie("refreshToken");
-        return res.sendStatus(204)
+        return res.sendStatus(204);
         // return res.json(token); ///???? переделать ответ
-
       } else {
         next(ApiError.BadRequest("Token not found"));
       }
