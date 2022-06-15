@@ -1,13 +1,15 @@
-const { UserModel } = require("../models/userModel");
+import  UserModel  from "../models/userModel";
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const mailApiService = require("./mailApiService");
-const tokenService = require("./tokenService");
-const UserDto = require("./../dtos/userDto");
+import tokenService from "./tokenService";
+import UserDto from "./../dtos/userDto";
 const ApiError = require("./../exceptions/apiError");
+import { IRegistrationFormData } from "./../types/user"
 
 class UserService {
-  async registration(firstName, lastName, email, phoneNumber, password) {
+  async registration({ firstName, lastName, email, phoneNumber, password }: IRegistrationFormData) {
+  
     const candidate = await UserModel.findOne({ email, phoneNumber });
     if (candidate) {
       throw ApiError.BadRequest(
@@ -19,7 +21,7 @@ class UserService {
     }
     const hoashPassword = await bcrypt.hash(password, 10);
     //создаем ссылку для активации
-    const activationLink = uuid.v4();
+    const activationLink: string = uuid.v4();
     const user = await UserModel.create({
       firstName,
       lastName,
@@ -49,7 +51,7 @@ class UserService {
     };
   }
 
-  async activate(activationLink) {
+  async activate(activationLink: string) {
     const user = await UserModel.findOne({ activationLink: activationLink });
     if (!user) {
       // throw new Error("Некорректная ссылка активации");
@@ -60,8 +62,9 @@ class UserService {
     await user.save();
   }
 
-  async login(email, password) {
-    const user = await UserModel.findOne({ email });
+  async login(email: any, password: string) {
+    console.log(email, password);
+    const user = await UserModel.findOne( {email} );
     if (!user) {
       throw ApiError.UnprocessableEntity(
         `Пользователь ${email} не был найден`,
@@ -89,7 +92,7 @@ class UserService {
     };
   }
 
-  async logout(refreshToken) {
+  async logout(refreshToken: string) {
     // const tokenCandidate = await tokenService.findToken(refreshToken);
     console.log("|UserService.logout | refreshToken : ", refreshToken);
 
@@ -111,13 +114,13 @@ class UserService {
     return clearToken; ///;
   }
 
-  async refresh(refreshToken) {
+  async refresh(refreshToken: string) {
     if (!refreshToken) {
       throw ApiError.UnauthorizedError();
     }
 
     //Проверка jwt token (jwt.verify)
-    const userData = tokenService.validateRefreshToken(refreshToken);
+    const userData:any = tokenService.validateRefreshToken(refreshToken);
     // Поиск токена в базе
     const tokenFromDb = await tokenService.findToken(refreshToken);
 
@@ -148,4 +151,5 @@ class UserService {
     return users;
   }
 }
-module.exports = new UserService();
+
+export default new UserService();

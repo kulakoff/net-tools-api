@@ -1,13 +1,13 @@
 //Возвращаемый объект при регистрации
-
-module.exports = class UserDto {
+//TODO доделать типизпцию
+export default class UserDto {
   email;
   id;
   isActivated;
 
-  constructor(model) {
+  constructor(model:any) {
     this.email = model.email;
     this.id = model._id;
     this.isActivated = model.isActivated;
   }
-};
+}

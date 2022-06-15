@@ -1,15 +1,17 @@
 require("dotenv").config();
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const { router } = require("./router");
-const { errorMiddleware } = require("./middlewares/errorMiddleware");
-const { rateLimitMiddleware } = require("./middlewares/rateLimitMiddleware");
-const { corsMiddleware } = require("./middlewares/corsMiddleware");
+import express from "express";
+import cookieParser from "cookie-parser";
+import { router } from "./router";
+import ip from "ip";
+
+import errorMiddleware from "./middlewares/errorMiddleware";
+import rateLimitMiddleware from "./middlewares/rateLimitMiddleware";
+import corsMiddleware from "./middlewares/corsMiddleware";
 
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-const ip = require("ip");
+
 
 app.use(express.json());
 app.use(cookieParser());

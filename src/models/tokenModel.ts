@@ -1,9 +1,9 @@
-const { Schema } = require("mongoose");
-const { authConnection } = require("../dbConnections/connections");
+import  Mongoose from "mongoose";
+import { authConnection } from "../dbConnections/connections";
 
-const TokenSchema = new Schema(
+const TokenSchema = new Mongoose.Schema(
   {
-    user: { type: Schema.Types.ObjectId, ref: "User" },
+    user: { type: Mongoose.Schema.Types.ObjectId, ref: "User" },
     refreshToken:[String]
     // refreshToken: { type: String, require: true },
   },
@@ -15,4 +15,4 @@ const TokenSchema = new Schema(
 );
 
 const TokenModel = authConnection.model("Token", TokenSchema, "tokens");
-module.exports = { TokenModel };
+export default  TokenModel ;

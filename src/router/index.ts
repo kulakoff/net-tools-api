@@ -1,11 +1,17 @@
-const Router = require("express").Router;
-const router = new Router();
-const { body } = require("express-validator");
+// const Router = require("express").Router;
+import { Router } from "express"
+import { body } from "express-validator"
+export const router = Router();
+// const { body } = require("express-validator");
 
-const userController = require("./../controllers/userController");
+// const userController = require("./../controllers/userController");
+// const authMiddleware = require("../middlewares/authMiddleware");
+
+import userController from "./../controllers/userController"
 const deviceController = require("./../controllers/devideController");
 const metersController = require("./../controllers/metersController");
-const authMiddleware = require("../middlewares/authMiddleware");
+import authMiddleware from "../middlewares/authMiddleware";
+
 
 router.post(
   "/registration",
@@ -23,4 +29,5 @@ router.post("/device", authMiddleware, deviceController.setDevice);
 router.get("/meters", authMiddleware, metersController.getMeters);
 router.post("/meters", authMiddleware, metersController.sendMeters);
 
-module.exports = { router };
+// module.exports = { router };
+

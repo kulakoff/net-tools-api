@@ -1,7 +1,11 @@
+import { Request, Response, NextFunction } from "express";
 const ApiError = require("./../exceptions/apiError");
 const tokenService = require("../service/tokenService");
+// interface IExpressRequest extends Request {
+//   user:any
+// }
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
     const authorizationHeader = req.headers.authorization;
     if (!authorizationHeader) {
@@ -9,19 +13,20 @@ const authMiddleware = (req, res, next) => {
       return next(ApiError.UnauthorizedError());
     }
 
-    const accessToken = authorizationHeader.split(" ")[1];
+    const accessToken: string = authorizationHeader.split(" ")[1];
     if (!accessToken) {
       console.log("|DEBUG|Отсутствует токен|");
       return next(ApiError.UnauthorizedError());
     }
 
-    const userData = tokenService.valdateAccessToken(accessToken);
+    const userData: any = tokenService.valdateAccessToken(accessToken);
     if (!userData) {
       console.log("|DEBUG|Не корректный токен доступа|");
       return next(ApiError.UnauthorizedError());
     }
     //Добавляем данные пользователя из валидного токена к заапросу
-    req.user = userData;
+    req.body.user = userData;
+    // req.user = userData;
     // console.table(req.user);
     next();
   } catch (error) {
@@ -30,4 +35,4 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;

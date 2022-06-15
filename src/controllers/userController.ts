@@ -1,9 +1,13 @@
-const userService = require("./../service/userService");
-const { validationResult } = require("express-validator");
-const ApiError = require("./../exceptions/apiError");
+require("dotenv").config();
+import userService from "../service/userService";
+import { validationResult } from "express-validator";
+import { Request, Response, NextFunction } from "express";
+import ApiError from "./../exceptions/apiError";
+let clientUrl: string = process.env.CLIENT_URL || "http://192.168.13.20:3000"
+console.log(clientUrl)
 
 class UserController {
-  async registration(req, res, next) {
+  async registration(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -13,11 +17,11 @@ class UserController {
       }
       const { firstName, lastName, email, phoneNumber, password } = req.body;
       const userData = await userService.registration(
-        firstName,
+       { firstName,
         lastName,
         email,
         phoneNumber,
-        password
+        password}
       );
       res.cookie("refreshToken", userData.refreshToken, {
         maxAge: 7 * 24 * 60 * 1000, //7 day
@@ -29,12 +33,10 @@ class UserController {
     }
   }
 
-  async login(req, res, next) {
+  async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
-      console.group("LOGIN DATA");
       console.table({ email, password });
-      console.groupEnd("LOGIN DATA");
       const userData = await userService.login(email, password);
       // console.log("UserController-login.userData: ",userData)
 
@@ -49,7 +51,7 @@ class UserController {
     }
   }
 
-  async logout(req, res, next) {
+  async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
       console.log("req.cookies.refreshToken: ", refreshToken);
@@ -69,17 +71,17 @@ class UserController {
     }
   }
 
-  async activate(req, res, next) {
+  async activate(req: Request, res: Response, next: NextFunction) {
     try {
       const activationLink = req.params.link;
       await userService.activate(activationLink);
-      return res.redirect(process.env.CLIENT_URL);
+      return res.redirect(clientUrl);
     } catch (error) {
       next(error);
     }
   }
 
-  async refresh(req, res, next) {
+  async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
       const userData = await userService.refresh(refreshToken);
@@ -97,7 +99,7 @@ class UserController {
     }
   }
 
-  async getUsers(req, res, next) {
+  async getUsers(req: Request, res: Response, next: NextFunction) {
     try {
       const users = await userService.getAllUsers();
       return res.json(users);
@@ -106,5 +108,6 @@ class UserController {
     }
   }
 }
+export default new UserController();
 
-module.exports = new UserController();
+

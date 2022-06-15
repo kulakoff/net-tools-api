@@ -1,5 +1,5 @@
-const { Schema } = require("mongoose");
-const { authConnection } = require("../dbConnections/connections");
+import { Schema } from "mongoose";
+import {authConnection} from "../dbConnections/connections";
 
 const UserSchema = new Schema(
   {
@@ -19,4 +19,4 @@ const UserSchema = new Schema(
 );
 
 const UserModel = authConnection.model("User", UserSchema, "users");
-module.exports = { UserModel };
+export default UserModel;
