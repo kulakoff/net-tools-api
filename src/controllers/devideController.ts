@@ -1,26 +1,24 @@
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../exceptions/apiError";
-import {
-  getDeviceBySN,
-  getDeviceByMAC,
-  setDevice as _setDevice,
-} from "../service/deviceService";
+import
+deviceService
+  from "../service/deviceService";
 
 class DeviceController {
   async getDevice(req: Request, res: Response, next: NextFunction) {
     try {
       if (
-        (req.query.cpe && req.query.cpe.type === "serialNumber") ||
-        req.query.cpe.type === "macAddress"
+        req.query.type === "serialNumber" ||
+        req.query.type === "macAddress"
       ) {
-        const { type, value } = req.query.cpe;
+        const { type, value } = req.query;
         switch (type) {
           case "serialNumber":
             console.log("case serialNumber");
-            const deviceDataBySN = await getDeviceBySN(value);
+            const deviceDataBySN = await deviceService.getDeviceBySN(value);
             return res.json(deviceDataBySN);
           case "macAddress":
-            const deviceDataByMAC = await getDeviceByMAC(value);
+            const deviceDataByMAC = await deviceService.getDeviceByMAC(value);
             if (deviceDataByMAC !== null) {
               return res.json(deviceDataByMAC);
             } else {
@@ -47,7 +45,7 @@ class DeviceController {
       //TODO: переделать проверку body
       if (Object.keys(req.body).length === 3) {
         console.log("REQ keys: 3");
-        const updatedDevice = await _setDevice(req.body);
+        const updatedDevice = await deviceService.setDevice(req.body);
         return res.json(updatedDevice);
       }
       next(ApiError.BadRequest("Не верное тело запроса"));

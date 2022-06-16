@@ -1,5 +1,5 @@
 require("dotenv").config();
-import express from "express";
+import express, { Application } from "express";
 import cookieParser from "cookie-parser";
 import { router } from "./router";
 import ip from "ip";
@@ -9,7 +9,7 @@ import rateLimitMiddleware from "./middlewares/rateLimitMiddleware";
 import corsMiddleware from "./middlewares/corsMiddleware";
 
 const PORT = process.env.PORT || 5000;
-const app = express();
+const app: Application = express();
 
 
 
@@ -28,7 +28,7 @@ app.use(errorMiddleware);
 const start = async () => {
   try {
     app.listen(PORT, () => {
-      console.log(`🚀 server started on  http://${ip.address()}:${PORT}`);
+      console.log(`🚀 Server started on  http://${ip.address()}:${PORT}`);
       console.log(`ENV_TARGET: ${process.env.ENV_TARGET}`);
     });
   } catch (e) {

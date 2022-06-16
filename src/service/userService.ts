@@ -1,16 +1,17 @@
-import  UserModel  from "../models/userModel";
-const bcrypt = require("bcrypt");
-const uuid = require("uuid");
-const mailApiService = require("./mailApiService");
+import UserModel from "../models/userModel";
+import bcrypt from "bcrypt";
+import { v4 as uuidv4 } from 'uuid'
+import mailApiService from "./mailApiService";
 import tokenService from "./tokenService";
 import UserDto from "./../dtos/userDto";
-const ApiError = require("./../exceptions/apiError");
+import ApiError from "./../exceptions/apiError";
 import { IRegistrationFormData } from "./../types/user"
 
 class UserService {
   async registration({ firstName, lastName, email, phoneNumber, password }: IRegistrationFormData) {
-  
+
     const candidate = await UserModel.findOne({ email, phoneNumber });
+    console.log(candidate);
     if (candidate) {
       throw ApiError.BadRequest(
         `Пользователь с почтовым адресом ${email} уже зарегистрирован!`
@@ -21,7 +22,8 @@ class UserService {
     }
     const hoashPassword = await bcrypt.hash(password, 10);
     //создаем ссылку для активации
-    const activationLink: string = uuid.v4();
+    const activationLink = uuidv4();
+    console.log("activationLink: ", activationLink);
     const user = await UserModel.create({
       firstName,
       lastName,
@@ -53,6 +55,7 @@ class UserService {
 
   async activate(activationLink: string) {
     const user = await UserModel.findOne({ activationLink: activationLink });
+    console.log("activate: ", user)
     if (!user) {
       // throw new Error("Некорректная ссылка активации");
       throw ApiError.BadRequest("Некорректная ссылка активации");
@@ -64,7 +67,7 @@ class UserService {
 
   async login(email: any, password: string) {
     console.log(email, password);
-    const user = await UserModel.findOne( {email} );
+    const user = await UserModel.findOne({ email });
     if (!user) {
       throw ApiError.UnprocessableEntity(
         `Пользователь ${email} не был найден`,
@@ -120,7 +123,7 @@ class UserService {
     }
 
     //Проверка jwt token (jwt.verify)
-    const userData:any = tokenService.validateRefreshToken(refreshToken);
+    const userData: any = tokenService.validateRefreshToken(refreshToken);
     // Поиск токена в базе
     const tokenFromDb = await tokenService.findToken(refreshToken);
 

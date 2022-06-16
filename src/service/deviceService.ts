@@ -2,7 +2,7 @@ import CpeModel from "../models/cpeModel";
 import ApiError from "../exceptions/apiError";
 
 class DeviceService {
-  async getDeviceBySN(value: string) {
+  async getDeviceBySN(value: any) {
     try {
       const deviceData = await CpeModel.findOne({
         "_deviceInfo.serialNumber": value,
@@ -14,7 +14,7 @@ class DeviceService {
     }
   }
 
-  async getDeviceByMAC(value: string) {
+  async getDeviceByMAC(value: any) {
     try {
       const deviceData = await CpeModel.findOne({
         "_deviceInfo.macAddress": value,

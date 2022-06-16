@@ -22,7 +22,7 @@ export default class ApiError extends Error {
     return new ApiError(404, message, errors);
   }
 
-  static UnprocessableEntity(message: any, errors: any[] = []) {
+  static UnprocessableEntity(message: any, errors: any[any] = []) {
     return new ApiError(422, message, errors);
   }
 };

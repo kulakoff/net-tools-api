@@ -1,13 +1,15 @@
 require("dotenv").config();
-const axios = require("axios");
+import axios from "axios";
 
 class mailApiService {
+  from_email: string
+  from_name: string
   constructor() {
-    this.from_email = process.env.MAIL_FROM_EMAIL;
+    this.from_email = process.env.MAIL_FROM_EMAIL || "email";
     // this.to = "anton.kulakoff@gmail.com";
-    this.from_name = process.env.MAIL_FROM_NAME;
+    this.from_name = process.env.MAIL_FROM_NAME || "name";
   }
-  async sendActivationMail(to, link) {
+  async sendActivationMail(to: string, link: string) {
     // console.log(`send mail to ${to}, link: ${link} from ${this.from_email}`);
     let data = JSON.stringify({
       from_email: this.from_email,
@@ -39,4 +41,4 @@ class mailApiService {
   }
 }
 
-module.exports = new mailApiService();
+export default new mailApiService();
