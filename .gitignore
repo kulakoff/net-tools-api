@@ -1,6 +1,7 @@
 .env
-node_modules
-demo
-_dbConnect
 .env.development 
+dist
+node_modules
+##
+_dbConnect
 test

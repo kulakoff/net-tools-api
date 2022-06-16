@@ -1,8 +1,13 @@
-const ApiError = require("./../exceptions/apiError");
-const deviceService = require("../service/deviceService");
+import { Request, Response, NextFunction } from "express";
+import ApiError from "../exceptions/apiError";
+import {
+  getDeviceBySN,
+  getDeviceByMAC,
+  setDevice as _setDevice,
+} from "../service/deviceService";
 
 class DeviceController {
-  async getDevice(req, res, next) {
+  async getDevice(req: Request, res: Response, next: NextFunction) {
     try {
       if (
         (req.query.cpe && req.query.cpe.type === "serialNumber") ||
@@ -12,14 +17,18 @@ class DeviceController {
         switch (type) {
           case "serialNumber":
             console.log("case serialNumber");
-            const deviceDataBySN = await deviceService.getDeviceBySN(value);
+            const deviceDataBySN = await getDeviceBySN(value);
             return res.json(deviceDataBySN);
           case "macAddress":
-            const deviceDataByMAC = await deviceService.getDeviceByMAC(value);
+            const deviceDataByMAC = await getDeviceByMAC(value);
             if (deviceDataByMAC !== null) {
               return res.json(deviceDataByMAC);
-            }else {
-              next(ApiError.NotFound(`Устройство не найдено, проверьте корректность введенных данных`));
+            } else {
+              next(
+                ApiError.NotFound(
+                  `Устройство не найдено, проверьте корректность введенных данных`
+                )
+              );
             }
         }
         // const device = await deviceService.getDevice(req.query)
@@ -31,14 +40,14 @@ class DeviceController {
     }
   }
 
-  async setDevice(req, res, next) {
+  async setDevice(req: Request, res: Response, next: NextFunction) {
     //TODO: сделать POST запрос genieacs api, задача сброс настроек
     try {
       console.log("POST data: ", req.body);
       //TODO: переделать проверку body
       if (Object.keys(req.body).length === 3) {
         console.log("REQ keys: 3");
-        const updatedDevice = await deviceService.setDevice(req.body);
+        const updatedDevice = await _setDevice(req.body);
         return res.json(updatedDevice);
       }
       next(ApiError.BadRequest("Не верное тело запроса"));
@@ -65,4 +74,4 @@ class DeviceController {
   //   }
   // }
 }
-module.exports = new DeviceController();
+export default new DeviceController();

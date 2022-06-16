@@ -1,8 +1,8 @@
-const { CpeModel } = require("../models/cpeModel");
-const ApiError = require("./../exceptions/apiError");
+import CpeModel from "../models/cpeModel";
+import ApiError from "../exceptions/apiError";
 
 class DeviceService {
-  async getDeviceBySN(value) {
+  async getDeviceBySN(value: string) {
     try {
       const deviceData = await CpeModel.findOne({
         "_deviceInfo.serialNumber": value,
@@ -14,7 +14,7 @@ class DeviceService {
     }
   }
 
-  async getDeviceByMAC(value) {
+  async getDeviceByMAC(value: string) {
     try {
       const deviceData = await CpeModel.findOne({
         "_deviceInfo.macAddress": value,
@@ -26,11 +26,11 @@ class DeviceService {
       }
     } catch (error) {
       console.log(error);
-      return ApiError.BadRequest();
+      return ApiError.BadRequest("Непредвиденная ошибка");
     }
   }
 
-  async setDevice(data) {
+  async setDevice(data: any) {
     try {
       const moment = new Date();
       const { serialNumber, macAddress, configMode } = data;
@@ -70,4 +70,4 @@ class DeviceService {
   }
 }
 
-module.exports = new DeviceService();
+export default new DeviceService();

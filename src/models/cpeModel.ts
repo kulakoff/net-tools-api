@@ -1,8 +1,8 @@
 // const { Schema } = require("mongoose");
 // const { deviceConnection } = require("../dbConnections/connections").default;
 
-const { Schema } = require("mongoose");
-const { deviceConnection } = require("../dbConnections/connections");
+import { Schema } from "mongoose";
+import { deviceConnection } from "../dbConnections/connections";
 
 const CpeScheme = new Schema(
   {
@@ -90,4 +90,4 @@ const CpeScheme = new Schema(
 );
 
 const CpeModel = deviceConnection.model("CPE", CpeScheme, "devices");
-module.exports = { CpeModel };
+export default CpeModel;

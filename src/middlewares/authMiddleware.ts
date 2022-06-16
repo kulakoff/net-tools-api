@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-const ApiError = require("./../exceptions/apiError");
-const tokenService = require("../service/tokenService");
+import ApiError from "./../exceptions/apiError";
+import tokenService from "../service/tokenService";
 // interface IExpressRequest extends Request {
 //   user:any
 // }
