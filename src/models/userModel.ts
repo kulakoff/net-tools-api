@@ -1,5 +1,7 @@
+//mongoose model user
+
 import { Schema } from "mongoose";
-import {authConnection} from "../dbConnections/connections";
+import { authConnection } from "../dbConnections/connections";
 
 const UserSchema = new Schema(
   {

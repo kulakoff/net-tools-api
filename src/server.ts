@@ -1,18 +1,25 @@
 require("dotenv").config();
+import ip from "ip";
 import express, { Application } from "express";
 import cookieParser from "cookie-parser";
-import { router } from "./router";
-import ip from "ip";
 
+import { router } from "./router";
 import errorMiddleware from "./middlewares/errorMiddleware";
 import rateLimitMiddleware from "./middlewares/rateLimitMiddleware";
 import corsMiddleware from "./middlewares/corsMiddleware";
 
+//mysql
+import sequelizeConnection from "./dbConnections/sequelize";
+import {
+  initModels,
+  counters,
+  counters_data,
+} from "./models/sequelize/init-models";
+
 const PORT = process.env.PORT || 5000;
 const app: Application = express();
 
-
-
+//Middlewares:
 app.use(express.json());
 app.use(cookieParser());
 app.use(corsMiddleware);

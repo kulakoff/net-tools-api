@@ -1,5 +1,4 @@
-// const { Schema } = require("mongoose");
-// const { deviceConnection } = require("../dbConnections/connections").default;
+//mongoose model CPE
 
 import { Schema } from "mongoose";
 import { deviceConnection } from "../dbConnections/connections";
