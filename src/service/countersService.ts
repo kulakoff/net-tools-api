@@ -9,16 +9,14 @@ initModels(sequelizeConnection);
 
 import { iCounterItem, counterModels } from "../types/counters";
 
-export interface IModiFyValues extends iCounterItem{
-model: counterModels,
-addresses: string
-
+export interface IModiFyValues {
+  model?: counterModels;
+  addresses?: string;
 }
 
 export interface ISetCounter {
-id:number;
-serial_number:string;
-payload:
+  id: string;
+  payload: IModiFyValues;
 }
 
 class CountersService {
@@ -46,14 +44,13 @@ class CountersService {
     }
   }
 
- 
   //Обновление информации о приборе учета
-  async setCounter({id,serial_number,payload}:ISetCounter) {
+  async setCounter(id: number, payload: IModiFyValues) {
     try {
       console.log("Обновление информции");
-      console.log(payload)
-      
-      return payload
+      // console.log("ID:", id, "PAYLOAD: ", payload);
+      const result = await counters.update(payload, { where: { id } });
+      return result;
     } catch (error) {
       console.log(error);
       return null;
@@ -70,9 +67,9 @@ class CountersService {
         address,
       });
       return newCounter;
-    } catch (error:any) {
+    } catch (error: any) {
       console.log(error);
-      return {message:error.errors[0].message};
+      return { message: error.errors[0].message };
     }
   }
 

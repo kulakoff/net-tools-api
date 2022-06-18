@@ -26,7 +26,7 @@ router.get("/device", authMiddleware, deviceController.getDevice);
 router.post("/device", authMiddleware, deviceController.setDevice);
 
 router.get("/counters", authMiddleware, countersController.getItems);//+
-router.patch("/counters", authMiddleware, countersController.setItem);
+router.patch("/counters/:id", authMiddleware, countersController.setItem);
 router.get("/counters/:id", authMiddleware, countersController.getItem);//+
 router.post("/counters/new", authMiddleware, countersController.newItem);//+
 router.delete("/counters", authMiddleware, countersController.removeItem);//+

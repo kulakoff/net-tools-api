@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../exceptions/apiError";
-import CountersService from "../service/countersService";
+import CountersService, { IModiFyValues } from "../service/countersService";
 import { iCounterItem } from "../types/counters";
 
 // const metersService = require("./../services/")
@@ -29,15 +29,17 @@ class CountersController {
   }
 
   async setItem(req: Request, res: Response, next: NextFunction) {
-    console.log(req.body);
+    console.log("req.body: ", req.body);
+    console.log("req.params: ", req.params.id);
 
-    if (req.body) {
-      const {counter, update } = req.body;
+    if (req.body.update && req.params.id) {
+      const { update } = req.body;
+      const { id } = req.params;
       console.log("CountersController.setItem");
-      console.log(`Изменить даные прибора учета с ID: ${req.body}`);
-      const response = await CountersService.setCounter({...counter, ...update});
-
-      res.sendStatus(200);
+      console.log(`Изменить даные прибора учета с ID: ${id}`);
+      console.log("payload: ", { id, update });
+      const response = await CountersService.setCounter(+id, update);
+      res.json(response);
     }
   }
 
