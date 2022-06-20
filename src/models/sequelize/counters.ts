@@ -1,5 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { counters_data, counters_dataId } from './counters_data';
 
 export interface countersAttributes {
   id: number;
@@ -19,6 +20,18 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
   model!: string;
   address!: string;
 
+  // counters hasMany counters_data via counter_id
+  counters_data!: counters_data[];
+  getCounters_data!: Sequelize.HasManyGetAssociationsMixin<counters_data>;
+  setCounters_data!: Sequelize.HasManySetAssociationsMixin<counters_data, counters_dataId>;
+  addCounters_datum!: Sequelize.HasManyAddAssociationMixin<counters_data, counters_dataId>;
+  addCounters_data!: Sequelize.HasManyAddAssociationsMixin<counters_data, counters_dataId>;
+  createCounters_datum!: Sequelize.HasManyCreateAssociationMixin<counters_data>;
+  removeCounters_datum!: Sequelize.HasManyRemoveAssociationMixin<counters_data, counters_dataId>;
+  removeCounters_data!: Sequelize.HasManyRemoveAssociationsMixin<counters_data, counters_dataId>;
+  hasCounters_datum!: Sequelize.HasManyHasAssociationMixin<counters_data, counters_dataId>;
+  hasCounters_data!: Sequelize.HasManyHasAssociationsMixin<counters_data, counters_dataId>;
+  countCounters_data!: Sequelize.HasManyCountAssociationsMixin;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof counters {
     return counters.init({
@@ -30,8 +43,7 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
     },
     serial_number: {
       type: DataTypes.STRING(30),
-      allowNull: false,
-      unique: "serial_number"
+      allowNull: false
     },
     model: {
       type: DataTypes.STRING(30),
@@ -52,14 +64,6 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
         using: "BTREE",
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "serial_number",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "serial_number" },
         ]
       },
     ]

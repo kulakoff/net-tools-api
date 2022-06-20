@@ -18,6 +18,10 @@ export interface ISetCounter {
   id: string;
   payload: IModiFyValues;
 }
+export interface IMeterReadings {
+  id: number;
+  value: number;
+}
 
 class CountersService {
   //Вывод всех приборов учета
@@ -85,13 +89,45 @@ class CountersService {
     }
   }
 
-  //Вывод показаний прибора учета
-  async getCounterData() {
+  /**
+   * Вывод показаний прибора учета
+   */
+  async getCounterData(id: number) {
     try {
       console.log("Вывод показаний прибора учета");
+      const result = await counters.findAll({
+        where: { id },
+        include: [
+          {
+            model: counters_data,
+            as: "counters_data",
+            attributes: ["value", "timestamp"],
+          },
+        ],
+        raw: true,
+        nest: true,
+        limit: 1,
+        subQuery: false,
+      });
+      // console.log("SQL res: ",result)
+      return result;
     } catch (error) {
       console.log(error);
       return null;
+    }
+  }
+
+  /**
+   * Запись показаний прибора учета в базу
+   */
+  async sendMeters({ id, value }: IMeterReadings) {
+    try {
+      console.log("sendMeters: ", id, value);
+      const newMeters = await counters_data.create({ counter_id: id, value });
+      return newMeters;
+    } catch (error: any) {
+      console.log(error);
+      return error;
     }
   }
 }

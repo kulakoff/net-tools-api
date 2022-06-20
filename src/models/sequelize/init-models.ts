@@ -20,6 +20,8 @@ export function initModels(sequelize: Sequelize) {
   const counters = _counters.initModel(sequelize);
   const counters_data = _counters_data.initModel(sequelize);
 
+  counters_data.belongsTo(counters, { as: "counter", foreignKey: "counter_id"});
+  counters.hasMany(counters_data, { as: "counters_data", foreignKey: "counter_id"});
 
   return {
     counters: counters,

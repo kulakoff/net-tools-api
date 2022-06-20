@@ -1,5 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { counters, countersId } from './counters';
 
 export interface counters_dataAttributes {
   id: number;
@@ -19,6 +20,11 @@ export class counters_data extends Model<counters_dataAttributes, counters_dataC
   value!: number;
   timestamp!: Date;
 
+  // counters_data belongsTo counters via counter_id
+  counter!: counters;
+  getCounter!: Sequelize.BelongsToGetAssociationMixin<counters>;
+  setCounter!: Sequelize.BelongsToSetAssociationMixin<counters, countersId>;
+  createCounter!: Sequelize.BelongsToCreateAssociationMixin<counters>;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof counters_data {
     return counters_data.init({
@@ -30,7 +36,11 @@ export class counters_data extends Model<counters_dataAttributes, counters_dataC
     },
     counter_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'counters',
+        key: 'id'
+      }
     },
     value: {
       type: DataTypes.INTEGER,
