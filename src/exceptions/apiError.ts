@@ -1,8 +1,8 @@
 //TODO доделать типизацию
 
 export default class ApiError extends Error {
-  status;
-  errors;
+  status: number;
+  errors: any[];
 
   constructor(status: any, message: any, errors: any[] = []) {
     super(message);
