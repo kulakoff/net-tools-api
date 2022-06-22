@@ -9,7 +9,20 @@ class MainController {
   async sendReport(req: Request, res: Response, next: NextFunction) {
     try {
       console.log("sendReport >>>");
-      console.log(req.body);
+      
+      const { action }:IActionBody = req.body;
+      console.log("action",action);
+      switch (action) {
+        case "SEND_REPORT":
+          console.log("Выполнить отправку отчета в сбытовую компанию")
+          break;
+          case "CHECK_DATA_REPORT":
+            console.log("Проверка данных перед отправкой отчета")
+            break;
+      
+        default:
+          break;
+      }
       res.sendStatus(200);
     } catch (error) {
       console.log(error);

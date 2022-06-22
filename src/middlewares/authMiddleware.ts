@@ -5,6 +5,13 @@ import tokenService from "../service/tokenService";
 //   user:any
 // }
 
+/**
+ * Валидация JWT
+ * @param req 
+ * @param res 
+ * @param next 
+ * @returns modify req.user from JWT token
+ */
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
     const authorizationHeader = req.headers.authorization;
@@ -21,7 +28,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
     const userData: any = tokenService.valdateAccessToken(accessToken);
     if (!userData) {
-      console.log("|DEBUG|Не корректный токен доступа|");
+      console.log("|DEBUG|Некорректный токен доступа|");
       return next(ApiError.UnauthorizedError());
     }
     //Добавляем данные пользователя из валидного токена к заапросу

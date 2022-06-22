@@ -7,10 +7,10 @@ import {
 } from "../models/sequelize/init-models";
 initModels(sequelizeConnection);
 
-import { iCounterItem, counterModels } from "../types/counters";
+import { iCounterItem, counterModel } from "../types/counters";
 
 export interface IModiFyValues {
-  model?: counterModels;
+  model?: counterModel;
   addresses?: string;
 }
 
@@ -90,7 +90,8 @@ class CountersService {
   }
 
   /**
-   * Вывод показаний прибора учета
+   * Вывод последних показаний прибора учета 
+   * @id запрашиваемого прибора цчета
    */
   async getCounterData(id: number) {
     try {
@@ -118,11 +119,11 @@ class CountersService {
   }
 
   /**
-   * Запись показаний прибора учета в базу
+   * Запись показаний прибора учета в БД
    */
-  async sendMeters({ id, value }: IMeterReadings) {
+  async saveCounterData({ id, value }: IMeterReadings) {
     try {
-      console.log("sendMeters: ", id, value);
+      console.log("sendMeters input props> : ", id, value);
       const newMeters = await counters_data.create({ counter_id: id, value });
       return newMeters;
     } catch (error: any) {

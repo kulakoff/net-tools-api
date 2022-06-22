@@ -114,7 +114,7 @@ class CountersController {
       if (req.body && req.body.id) {
         const { id, value } = req.body;
         console.log(req.body);
-        const response = await CountersService.sendMeters({ id, value });
+        const response = await CountersService.saveCounterData({ id, value });
         res.json(response);
       } else {
         next(ApiError.BadRequest("Не верное тело запроса"));

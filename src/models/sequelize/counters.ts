@@ -7,11 +7,12 @@ export interface countersAttributes {
   serial_number: string;
   model: string;
   address: string;
+  telemetry: number;
 }
 
 export type countersPk = "id";
 export type countersId = counters[countersPk];
-export type countersOptionalAttributes = "id";
+export type countersOptionalAttributes = "id" | "telemetry";
 export type countersCreationAttributes = Optional<countersAttributes, countersOptionalAttributes>;
 
 export class counters extends Model<countersAttributes, countersCreationAttributes> implements countersAttributes {
@@ -19,6 +20,7 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
   serial_number!: string;
   model!: string;
   address!: string;
+  telemetry!: number;
 
   // counters hasMany counters_data via counter_id
   counters_data!: counters_data[];
@@ -52,6 +54,11 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
     address: {
       type: DataTypes.STRING(255),
       allowNull: false
+    },
+    telemetry: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
     sequelize,
