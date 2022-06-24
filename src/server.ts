@@ -12,6 +12,7 @@ const PORT = process.env.PORT as string || "5000"
 const app: Application = express();
 
 //Middlewares:
+app.disable('x-powered-by');  
 app.use(express.json());
 app.use(cookieParser());
 app.use(corsMiddleware);

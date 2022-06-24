@@ -40,10 +40,13 @@ class DeviceController {
 
   async setDevice(req: Request, res: Response, next: NextFunction) {
     //TODO: сделать POST запрос genieacs api, задача сброс настроек
+    console.log("req.body: ",req.body);
+    
     try {
       console.log("POST data: ", req.body);
       //TODO: переделать проверку body
-      if (Object.keys(req.body).length === 3) {
+      console.log("length: >>> ",Object.keys(req.body).length)
+      if (Object.keys(req.body).length === 4) {
         console.log("REQ keys: 3");
         const updatedDevice = await deviceService.setDevice(req.body);
         return res.json(updatedDevice);
