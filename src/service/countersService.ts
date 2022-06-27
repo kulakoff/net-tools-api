@@ -1,4 +1,5 @@
 //mysql
+import sequelize from "../dbConnections/sequelize";
 import sequelizeConnection from "../dbConnections/sequelize";
 import {
   initModels,
@@ -20,6 +21,10 @@ export interface ISetCounter {
 }
 export interface IMeterReadings {
   id: number;
+  value: number;
+}
+export interface IMeterReadings2 {
+  serial_number: string;
   value: number;
 }
 
@@ -131,6 +136,29 @@ class CountersService {
       return error;
     }
   }
+
+
+  /**
+ * Запись показаний прибора учета в БД
+ */
+  async saveCounterData2({ serial_number, value }: IMeterReadings2) {
+    try {
+      //  const res1 = await sequelize.query(`
+      //  INSERT INTO counters_data  (counter_id,value)
+      //  SELECT counters.id  AS counter_id , ${value} as value 
+      //  FROM counters
+      //  WHERE counters.serial_number = ${serial_number};
+      //  `)
+      const res2 = await counters_data.create({ value, counter_id:  await counters.findOne({ serial_number}) } );
+      console.log("saveCounterData2 res1: ", res2)
+      return res2;
+    } catch (error: any) {
+      console.log(error);
+      return error;
+    }
+  }
+
 }
+
 
 export default new CountersService();

@@ -23,8 +23,13 @@ router.get("/refresh", userController.refresh);
 //TODO: сделать роут "/me" для получания даннх о пользователе на основании его токена
 
 router.get("/users", authMiddleware, userController.getUsers);
-
+/**
+ * Поиск CPE по MAC / SN
+ */
 router.get("/device", authMiddleware, deviceController.getDevice);
+/**
+ * Изменить шаблон CPE
+ */
 router.post("/device", authMiddleware, deviceController.setDevice);
 
 //TODO: сделать вложенные роут объеденив по группам endpoints
@@ -34,6 +39,9 @@ router.get("/counters/:id", authMiddleware, countersController.getItem); //+
 router.post("/counters/new", authMiddleware, countersController.newItem); //+
 router.delete("/counters", authMiddleware, countersController.removeItem); //+
 // router.post("/counters", authMiddleware, countersController.sendCountersData); //+
+/**
+ *Отправка показаний приборов учета
+ */
 router.post("/counters/data", authMiddleware, countersController.sendMeters); //+
 //Просмотр показаний по выбранного прибора учета
 router.get(
@@ -44,3 +52,5 @@ router.get(
 
 //Report
 router.post("/main/report", authMiddleware, mainController.sendReport); //+
+
+router.post("/demo/counters/data", authMiddleware, countersController.sendMeters2); //+

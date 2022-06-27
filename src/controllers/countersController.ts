@@ -107,7 +107,8 @@ class CountersController {
     }
   }
   /**
-   *Отправка показаний приборов учета
+   *Отправка показаний приборов учета по ID  прибора учета!
+   Переделать
    */
   async sendMeters(req: Request, res: Response, next: NextFunction) {
     try {
@@ -119,6 +120,26 @@ class CountersController {
       } else {
         next(ApiError.BadRequest("Не верное тело запроса"));
       }
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+
+  /**
+ *Отправка показаний приборов учета по ID  прибора учета!
+ Переделать
+ */
+  async sendMeters2(req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log("sendMeters2: ", req.body);
+      // req.body.payload = {...req.body.data}
+      if (req.body.payload && req.body.payload.value) {
+        const { serial_number, value } = req.body.payload
+        const response = await CountersService.saveCounterData2({ serial_number, value });
+        res.json(response)
+      }
+      
     } catch (error) {
       console.log(error);
       next(error);
