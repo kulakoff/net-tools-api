@@ -106,19 +106,22 @@ class CountersController {
       res.json(newItem);
     }
   }
+
   /**
-   *Отправка показаний приборов учета по ID  прибора учета!
-   Переделать
-   */
+ *Отправка показаний приборов учета по ID  прибора учета!
+ Переделать
+ */
   async sendMeters(req: Request, res: Response, next: NextFunction) {
     try {
-      if (req.body && req.body.id) {
-        const { id, value } = req.body;
-        console.log(req.body);
-        const response = await CountersService.saveCounterData({ id, value });
+      console.log("sendMeters2: ", req.body);
+      // req.body.payload = {...req.body.data}
+      if (req.body.payload && req.body.payload.value) {
+        const { serial_number, value } = req.body.payload;
+        const response = await CountersService.saveCounterData({
+          serial_number,
+          value,
+        });
         res.json(response);
-      } else {
-        next(ApiError.BadRequest("Не верное тело запроса"));
       }
     } catch (error) {
       console.log(error);
@@ -126,20 +129,41 @@ class CountersController {
     }
   }
 
-  /**
- *Отправка показаний приборов учета по ID  прибора учета!
- Переделать
- */
   async sendMeters2(req: Request, res: Response, next: NextFunction) {
     try {
       console.log("sendMeters2: ", req.body);
       // req.body.payload = {...req.body.data}
-      if (req.body.payload && req.body.payload.value) {
-        const { serial_number, value } = req.body.payload
-        const response = await CountersService.saveCounterData2({ serial_number, value });
-        res.json(response)
+      if (
+        req.body.payload &&
+        req.body.payload.value &&
+        req.body.payload.serial_number
+      ) {
+        const { serial_number, value } = req.body.payload;
+        const response = await CountersService.saveCounterData2({
+          serial_number,
+          value,
+        });
+        res.json(response);
       }
-      
+      next(ApiError.BadRequest("Не верыное тело запроса"));
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+
+  async sendMetersById(req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log("sendMeters2: ", req.body);
+      // req.body.payload = {...req.body.data}
+      if (req.body.payload && req.body.payload.value) {
+        const { id, value } = req.body.payload;
+        const response = await CountersService.saveCounterData_byId({
+          id,
+          value,
+        });
+        res.json(response);
+      }
     } catch (error) {
       console.log(error);
       next(error);

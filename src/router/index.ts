@@ -53,4 +53,9 @@ router.get(
 //Report
 router.post("/main/report", authMiddleware, mainController.sendReport); //+
 
+
+
+
+//DEMO
 router.post("/demo/counters/data", authMiddleware, countersController.sendMeters2); //+
+router.post("/demo/counters/data/id", authMiddleware, countersController.sendMetersById); //+

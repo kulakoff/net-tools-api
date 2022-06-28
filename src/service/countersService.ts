@@ -95,7 +95,7 @@ class CountersService {
   }
 
   /**
-   * Вывод последних показаний прибора учета 
+   * Вывод последних показаний прибора учета
    * @id запрашиваемого прибора цчета
    */
   async getCounterData(id: number) {
@@ -125,8 +125,9 @@ class CountersService {
 
   /**
    * Запись показаний прибора учета в БД
+   * Не используется
    */
-  async saveCounterData({ id, value }: IMeterReadings) {
+  async saveCounterData_byId({ id, value }: IMeterReadings) {
     try {
       console.log("sendMeters input props> : ", id, value);
       const newMeters = await counters_data.create({ counter_id: id, value });
@@ -137,28 +138,34 @@ class CountersService {
     }
   }
 
-
   /**
- * Запись показаний прибора учета в БД
- */
-  async saveCounterData2({ serial_number, value }: IMeterReadings2) {
+   * Запись показаний прибора учета в БД
+   * TODO: переделать на синаксис ORM
+   */
+  async saveCounterData({ serial_number, value }: IMeterReadings2) {
     try {
-      //  const res1 = await sequelize.query(`
-      //  INSERT INTO counters_data  (counter_id,value)
-      //  SELECT counters.id  AS counter_id , ${value} as value 
-      //  FROM counters
-      //  WHERE counters.serial_number = ${serial_number};
-      //  `)
-      const res2 = await counters_data.create({ value, counter_id:  await counters.findOne({ serial_number}) } );
-      console.log("saveCounterData2 res1: ", res2)
-      return res2;
+      const res = await sequelize.query(`
+       INSERT INTO counters_data (counter_id, value)
+       SELECT counters.id  AS counter_id , ${value} as value 
+       FROM counters
+       WHERE counters.serial_number = ${serial_number};
+       `);
+      return res;
     } catch (error: any) {
       console.log(error);
       return error;
     }
   }
 
+  async saveCounterData2({ serial_number, value }: IMeterReadings2) {
+    try {
+      const res = await counters_data.create({value, counter_id:{ await counters.findAll({where:{serial_number}})}})
+      return "res";
+    } catch (error: any) {
+      console.log(error);
+      return error;
+    }
+  }
 }
-
 
 export default new CountersService();
