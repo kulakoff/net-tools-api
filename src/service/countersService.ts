@@ -1,4 +1,5 @@
 //mysql
+import { QueryTypes } from "sequelize"
 import sequelize from "../dbConnections/sequelize";
 import sequelizeConnection from "../dbConnections/sequelize";
 import {
@@ -21,11 +22,11 @@ export interface ISetCounter {
 }
 export interface IMeterReadings {
   id: number;
-  value: number;
+  value: string;
 }
 export interface IMeterReadings2 {
   serial_number: string;
-  value: number;
+  value: string;
 }
 
 class CountersService {
@@ -144,12 +145,11 @@ class CountersService {
    */
   async saveCounterData({ serial_number, value }: IMeterReadings2) {
     try {
-      const res = await sequelize.query(`
-       INSERT INTO counters_data (counter_id, value)
-       SELECT counters.id  AS counter_id , ${value} as value 
-       FROM counters
-       WHERE counters.serial_number = ${serial_number};
-       `);
+      const res = await counters_data.create({
+        value, counter_id:
+          await counters.findOne({ attributes: ["id"], where: { serial_number } })
+            .then(({ id }: any) => id ? id : null)
+      });
       return res;
     } catch (error: any) {
       console.log(error);
@@ -157,9 +157,17 @@ class CountersService {
     }
   }
 
-  async saveCounterData2({ serial_number, value }: IMeterReadings2) {
+  async saveCounterData_test({ serial_number, value }: IMeterReadings2) {
     try {
-      const res = await counters_data.create({value, counter_id:{ await counters.findAll({where:{serial_number}})}})
+      const [results, metadata] = await sequelize.query(`
+       INSERT INTO counters_data (counter_id, value)
+       SELECT counters.id  AS counter_id , ${value} as value 
+       FROM counters
+       WHERE counters.serial_number = ${serial_number};
+       `, {
+        type: QueryTypes.INSERT, raw: true, nest: true,
+      });
+      console.log(results, metadata)
       return "res";
     } catch (error: any) {
       console.log(error);

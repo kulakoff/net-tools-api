@@ -111,7 +111,7 @@ class CountersController {
  *Отправка показаний приборов учета по ID  прибора учета!
  Переделать
  */
-  async sendMeters(req: Request, res: Response, next: NextFunction) {
+  async sendMeters2(req: Request, res: Response, next: NextFunction) {
     try {
       console.log("sendMeters2: ", req.body);
       // req.body.payload = {...req.body.data}
@@ -129,7 +129,7 @@ class CountersController {
     }
   }
 
-  async sendMeters2(req: Request, res: Response, next: NextFunction) {
+  async sendMeters(req: Request, res: Response, next: NextFunction) {
     try {
       console.log("sendMeters2: ", req.body);
       // req.body.payload = {...req.body.data}
@@ -139,7 +139,7 @@ class CountersController {
         req.body.payload.serial_number
       ) {
         const { serial_number, value } = req.body.payload;
-        const response = await CountersService.saveCounterData2({
+        const response = await CountersService.saveCounterData({
           serial_number,
           value,
         });
