@@ -11,6 +11,11 @@ initModels(sequelizeConnection);
 
 import { iCounterItem, counterModel } from "../types/counters";
 
+export interface IgetCounterDataHistory {
+  id: number,
+  limit?: number
+}
+
 export interface IModiFyValues {
   model?: counterModel;
   addresses?: string;
@@ -115,6 +120,33 @@ class CountersService {
         nest: true,
         limit: 1,
         subQuery: false,
+      });
+      // console.log("SQL res: ",result)
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+
+
+  /**
+ * Вывод истории показаний прибора учета
+ * @id запрашиваемого прибора цчета
+ * @limit по-умолчанию 12
+ */
+  async getCounterDataHistory({id, limit = 12}:IgetCounterDataHistory ) {
+    try {
+      console.log("Вывод истории показаний прибора учета");
+      const result = await counters_data.findAll({
+        attributes: ["id", "value", "timestamp"],
+        where: { counter_id: id },
+        // raw: true,
+        // nest: true,
+        limit,
+        order: [['timestamp', 'DESC']]
+        // subQuery: false,
       });
       // console.log("SQL res: ",result)
       return result;

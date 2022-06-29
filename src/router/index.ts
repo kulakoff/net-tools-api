@@ -50,6 +50,13 @@ router.get(
   countersController.getItemData
 ); //+
 
+//Вывод истории показаний прибора учета
+router.get(
+  "/counters/:id/history",
+  authMiddleware,
+  countersController.getItemDataHistory
+); //+
+
 //Report
 router.post("/main/report", authMiddleware, mainController.sendReport); //+
 

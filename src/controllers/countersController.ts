@@ -66,6 +66,35 @@ class CountersController {
   }
 
   /**
+   *Найти все показания прибора учета по id
+   */
+  async getItemDataHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (req.params && req.params.id) {
+        const { id } = req.params;
+        const { limit } = req.query;
+        if (+id && !limit) {
+          const response = await CountersService.getCounterDataHistory({ id: +id });
+          next(res.json(response));
+        }
+        else if (limit && (+id && +limit)) {
+          const response = await CountersService.getCounterDataHistory({ id: +id, limit: +limit });
+          next(res.json(response));
+        }
+        else {
+          next(ApiError.BadRequest("Не верынй id"));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+
+      next(ApiError.BadRequest("Непредвиденная ошибка"));
+    }
+  }
+
+
+
+  /**
    *Изменить данные прибора учета
    */
   async setItem(req: Request, res: Response, next: NextFunction) {
