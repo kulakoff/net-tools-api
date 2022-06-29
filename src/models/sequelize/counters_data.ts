@@ -5,19 +5,19 @@ import type { counters, countersId } from './counters';
 export interface counters_dataAttributes {
   id: number;
   counter_id: number;
-  value?: string;
+  value: string;
   timestamp: Date;
 }
 
 export type counters_dataPk = "id";
 export type counters_dataId = counters_data[counters_dataPk];
-export type counters_dataOptionalAttributes = "id" | "value" | "timestamp";
+export type counters_dataOptionalAttributes = "id" | "timestamp";
 export type counters_dataCreationAttributes = Optional<counters_dataAttributes, counters_dataOptionalAttributes>;
 
 export class counters_data extends Model<counters_dataAttributes, counters_dataCreationAttributes> implements counters_dataAttributes {
   id!: number;
   counter_id!: number;
-  value?: string;
+  value!: string;
   timestamp!: Date;
 
   // counters_data belongsTo counters via counter_id
@@ -44,7 +44,7 @@ export class counters_data extends Model<counters_dataAttributes, counters_dataC
     },
     value: {
       type: DataTypes.STRING(15),
-      allowNull: true
+      allowNull: false
     },
     timestamp: {
       type: DataTypes.DATE,
