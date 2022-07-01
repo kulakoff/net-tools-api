@@ -8,11 +8,12 @@ export interface countersAttributes {
   model: string;
   address: string;
   telemetry: number;
+  card_number?: string;
 }
 
 export type countersPk = "id";
 export type countersId = counters[countersPk];
-export type countersOptionalAttributes = "id" | "telemetry";
+export type countersOptionalAttributes = "id" | "telemetry" | "card_number";
 export type countersCreationAttributes = Optional<countersAttributes, countersOptionalAttributes>;
 
 export class counters extends Model<countersAttributes, countersCreationAttributes> implements countersAttributes {
@@ -21,6 +22,7 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
   model!: string;
   address!: string;
   telemetry!: number;
+  card_number?: string;
 
   // counters hasMany counters_data via counter_id
   counters_data!: counters_data[];
@@ -59,6 +61,10 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: 0
+    },
+    card_number: {
+      type: DataTypes.STRING(30),
+      allowNull: true
     }
   }, {
     sequelize,
