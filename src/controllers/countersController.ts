@@ -52,7 +52,7 @@ class CountersController {
           // next(ApiError.BadRequest("timestamp not found"))
           if (+id) {
             const response = await CountersService.getCounterData(+id);
-            next(res.json(response));
+            res.json(response)
           } else {
             next(ApiError.BadRequest("Не верынй id"));
           }
@@ -75,11 +75,11 @@ class CountersController {
         const { limit } = req.query;
         if (+id && !limit) {
           const response = await CountersService.getCounterDataHistory({ id: +id });
-          next(res.json(response));
+          res.json(response)
         }
         else if (limit && (+id && +limit)) {
           const response = await CountersService.getCounterDataHistory({ id: +id, limit: +limit });
-          next(res.json(response));
+         res.json(response)
         }
         else {
           next(ApiError.BadRequest("Не верынй id"));

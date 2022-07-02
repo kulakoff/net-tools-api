@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../exceptions/apiError";
-export type ActionTypeValue = "SEND_REPORT" | "CHECK_DATA_REPORT";
+import CountersService, { IModiFyValues } from "../service/countersService";
+
+export type ActionTypeValue = "SEND_REPORT" | "CHECK_REPORT_DATA";
 export interface IActionBody {
   action: ActionTypeValue;
 }
@@ -9,19 +11,27 @@ class MainController {
   async sendReport(req: Request, res: Response, next: NextFunction) {
     try {
       console.log("sendReport >>>");
-      
-      const { action }:IActionBody = req.body;
-      console.log("action",action);
+
+      const { action }: IActionBody = req.body;
+      console.log("action", action);
       switch (action) {
-        case "SEND_REPORT":
-          console.log("Выполнить отправку отчета в сбытовую компанию")
-          break;
-          case "CHECK_DATA_REPORT":
-            console.log("Проверка данных перед отправкой отчета")
-            break;
-      
+        case "CHECK_REPORT_DATA": {
+          //1 сделать выборку из БД с данными для отчета
+          console.log("Проверка данных перед отправкой отчета");
+          const report = await CountersService.getReport();
+          res.json(report);
+        }
+
+        case "SEND_REPORT": //сделать запись в тамлице reports об успешно отпраленном отчете //2 сгенерировать файл отчета и отправить на почту в сбытовую компанию
+        {
+          console.log("Выполнить отправку отчета в сбытовую компанию");
+          res.json({
+            message: "Выполнить отправку отчета в сбытовую компанию",
+          });
+        }
+
         default:
-          break;
+          res.sendStatus(200);
       }
       res.sendStatus(200);
     } catch (error) {

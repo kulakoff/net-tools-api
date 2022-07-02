@@ -1,5 +1,5 @@
 //mysql
-import { QueryTypes } from "sequelize"
+import { QueryTypes } from "sequelize";
 import sequelize from "../dbConnections/sequelize";
 import sequelizeConnection from "../dbConnections/sequelize";
 import {
@@ -12,8 +12,8 @@ initModels(sequelizeConnection);
 import { iCounterItem, counterModel } from "../types/counters";
 
 export interface IgetCounterDataHistory {
-  id: number,
-  limit?: number
+  id: number;
+  limit?: number;
 }
 
 export interface IModiFyValues {
@@ -113,13 +113,17 @@ class CountersService {
           {
             model: counters_data,
             as: "counters_data",
-            attributes: ["value", "timestamp"],
+            attributes: ["id", "value", "timestamp"],
+            // duplicating:false
+            order: [["timestamp", "DESC"]],
+            limit: 12,
           },
         ],
-        raw: true,
-        nest: true,
-        limit: 1,
-        subQuery: false,
+        // group:['counters_data'],
+        // raw: true,
+        // nest: true,
+        // limit: 2,
+        // subQuery: false,
       });
       // console.log("SQL res: ",result)
       return result;
@@ -129,26 +133,22 @@ class CountersService {
     }
   }
 
-
-
   /**
- * Вывод истории показаний прибора учета
- * @id запрашиваемого прибора цчета
- * @limit по-умолчанию 12
- */
-  async getCounterDataHistory({id, limit = 12}:IgetCounterDataHistory ) {
+   * Вывод истории показаний прибора учета
+   * @id запрашиваемого прибора цчета
+   * @limit по-умолчанию 12
+   */
+  async getCounterDataHistory({ id, limit = 12 }: IgetCounterDataHistory) {
     try {
-      console.log("Вывод истории показаний прибора учета");
+      console.log(
+        "getCounterDataHistory. Вывод истории показаний прибора учета"
+      );
       const result = await counters_data.findAll({
         attributes: ["id", "value", "timestamp"],
         where: { counter_id: id },
-        // raw: true,
-        // nest: true,
         limit,
-        order: [['timestamp', 'DESC']]
-        // subQuery: false,
+        order: [["timestamp", "DESC"]],
       });
-      // console.log("SQL res: ",result)
       return result;
     } catch (error) {
       console.log(error);
@@ -178,9 +178,10 @@ class CountersService {
   async saveCounterData({ serial_number, value }: IMeterReadings2) {
     try {
       const res = await counters_data.create({
-        value, counter_id:
-          await counters.findOne({ attributes: ["id"], where: { serial_number } })
-            .then(({ id }: any) => id ? id : null)
+        value,
+        counter_id: await counters
+          .findOne({ attributes: ["id"], where: { serial_number } })
+          .then(({ id }: any) => (id ? id : null)),
       });
       return res;
     } catch (error: any) {
@@ -191,17 +192,45 @@ class CountersService {
 
   async saveCounterData_test({ serial_number, value }: IMeterReadings2) {
     try {
-      const [results, metadata] = await sequelize.query(`
+      const [results, metadata] = await sequelize.query(
+        `
        INSERT INTO counters_data (counter_id, value)
        SELECT counters.id  AS counter_id , ${value} as value 
        FROM counters
        WHERE counters.serial_number = ${serial_number};
-       `, {
-        type: QueryTypes.INSERT, raw: true, nest: true,
-      });
-      console.log(results, metadata)
+       `,
+        {
+          type: QueryTypes.INSERT,
+          raw: true,
+          nest: true,
+        }
+      );
+      console.log(results, metadata);
       return "res";
     } catch (error: any) {
+      console.log(error);
+      return error;
+    }
+  }
+
+  async getReport() {
+    //TODO сделать проверку даты
+    try {
+      const result = await counters.findAll({
+        include: [
+          {
+            model: counters_data,
+            as: "counters_data",
+            attributes: ["id", "value", "timestamp"],
+            // duplicating:false
+            order: [["timestamp", "DESC"]],
+            limit: 2,
+          },
+        ],
+
+      });
+      return result;
+    } catch (error) {
       console.log(error);
       return error;
     }
