@@ -28,8 +28,9 @@ app.use(errorMiddleware);
 const start = async () => {
   try {
     app.listen(PORT, () => {
-      console.log(`🚀 Server started on  http://${ip.address()}:${PORT}`);
       console.log(`ENV_TARGET: ${process.env.ENV_TARGET}`);
+      console.log(`🚀 Server started on  http://${ip.address()}:${PORT}`);
+     
     });
   } catch (e) {
     console.log(e);
