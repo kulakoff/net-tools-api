@@ -9,7 +9,7 @@ import {
 } from "../models/sequelize/init-models";
 initModels(sequelizeConnection);
 
-import { iCounterItem, counterModel } from "../types/counters";
+import { iCounterItem, counterModel, ICounterDataItem } from "../types/counters";
 
 export interface IgetCounterDataHistory {
   id: number;
@@ -73,13 +73,19 @@ class CountersService {
   }
 
   //Добавление прибора учета
-  async addCounter({ serial_number, model, address }: iCounterItem) {
+  async addCounter({
+    serial_number,
+    model,
+    address,
+    customer_id,
+  }: iCounterItem) {
     try {
       console.log("CountersService.addCounter | Добавление прибора учета");
       const newCounter = await counters.create({
         serial_number,
         model,
         address,
+        customer_id,
       });
       return newCounter;
     } catch (error: any) {
@@ -216,7 +222,7 @@ class CountersService {
   async getReport() {
     //TODO сделать проверку даты
     try {
-      const result = await counters.findAll({
+      const result:any = await counters.findAll({
         include: [
           {
             model: counters_data,
@@ -227,7 +233,6 @@ class CountersService {
             limit: 2,
           },
         ],
-
       });
       return result;
     } catch (error) {

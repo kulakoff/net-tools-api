@@ -20,6 +20,8 @@ app.use(rateLimitMiddleware);
 
 app.use("/api/v1/", router); //"/api/v1/",
 
+app.use('/reports', express.static('./reports'));
+
 // TODO: переделать заглушку для не валидных запросов
 app.use("*", (req: Request, res: Response) => res.sendStatus(400));
 

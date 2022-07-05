@@ -6,7 +6,7 @@ import userController from "./../controllers/userController";
 import deviceController from "./../controllers/devideController";
 import countersController from "../controllers/countersController";
 import authMiddleware from "../middlewares/authMiddleware";
-import mainController from "../controllers/mainController";
+import mainController from "../controllers/reportController";
 
 export const router = Router();
 
