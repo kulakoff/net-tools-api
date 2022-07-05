@@ -40,7 +40,7 @@ class ReportController {
         case "RENDER_REPORT": {
           //Получаем  данные из БД
           const report = await CountersService.getReport();
-          // Дополняем данные
+          // Дополняем данные из БД для фломарования отчета
           if (report) {
             //TODO: добавить 
             const makeReportData: IDataForReport = {
