@@ -1,6 +1,8 @@
 .env
 .env.development 
 package-lock.json
+##temp render report directory
+reports
 dist
 node_modules
 ##

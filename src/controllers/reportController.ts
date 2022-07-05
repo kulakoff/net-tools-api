@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../exceptions/apiError";
 import CountersService, { IModiFyValues } from "../service/countersService";
+import mailApiService from "../service/mailApiService";
+import mailService from "../service/mailService";
 import reportService from "../service/reportService";
 import { ICounterDataItem, IDataForReport } from "../types/counters";
 
@@ -34,6 +36,7 @@ class ReportController {
             message: "Выполнить отправку отчета в сбытовую компанию",
           });
         }
+
         case "RENDER_REPORT": {
           //Получаем  данные из БД
           const report = await CountersService.getReport();
@@ -46,9 +49,22 @@ class ReportController {
               meters: report,
             };
 
-            // res.json(makeReportData);
-            const renderReport = await reportService.renderReport(makeReportData)
-            res.json(renderReport)
+            //создаем файл отчета
+            await reportService.renderReport(makeReportData)
+              .then(async (renderResult) => {
+                if (renderResult.fileName) {
+                  //отправка на почту
+                  // const sendEmail = await mailApiService.sendReportMail('anton.kulakoff@ya.ru', renderResult.fileName)
+                  const sendEmail_nodemailer = await mailService.sendReport('anton.kulakoff@ya.ru', renderResult.fileName)
+                  // console.log(sendEmail)
+                  console.log(sendEmail_nodemailer)
+                  res.json({ message: "report sended", 
+                  // status: sendEmail.data.status, 
+                  nodemailer: sendEmail_nodemailer })
+                }
+              })
+
+
           }
           // отправляем данные для рендера отчета
           // await reportService.renderReport();

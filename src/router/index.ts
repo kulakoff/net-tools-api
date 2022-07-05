@@ -6,7 +6,7 @@ import userController from "./../controllers/userController";
 import deviceController from "./../controllers/devideController";
 import countersController from "../controllers/countersController";
 import authMiddleware from "../middlewares/authMiddleware";
-import mainController from "../controllers/reportController";
+import reportController from "../controllers/reportController";
 
 export const router = Router();
 
@@ -58,7 +58,7 @@ router.get(
 ); //+
 
 //Report
-router.post("/main/report", authMiddleware, mainController.sendReport); //+
+router.post("/main/report", authMiddleware, reportController.sendReport); //+
 
 
 

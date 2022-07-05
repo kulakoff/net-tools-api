@@ -221,14 +221,14 @@ class CountersService {
 
   async getReport() {
     //TODO сделать проверку даты
+    //типизация для ответа бд
     try {
-      const result:any = await counters.findAll({
+      const result: any = await counters.findAll({
         include: [
           {
             model: counters_data,
             as: "counters_data",
             attributes: ["id", "value", "timestamp"],
-            // duplicating:false
             order: [["timestamp", "DESC"]],
             limit: 2,
           },
