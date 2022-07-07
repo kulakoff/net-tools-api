@@ -31,7 +31,8 @@
     "sequelize": "^6.21.0",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "zabbix-rpc": "^1.2.3"
   },
   "description": "",
   "devDependencies": {

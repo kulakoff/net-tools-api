@@ -1,15 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../exceptions/apiError";
+import countersService from "../service/countersService";
 import CountersService, { IModiFyValues } from "../service/countersService";
 import mailApiService from "../service/mailApiService";
 import mailService from "../service/mailService";
 import reportService from "../service/reportService";
+import zabbixApiService from "../service/zabbixApiService";
 import { ICounterDataItem, IDataForReport } from "../types/counters";
+import { IResponseCounterItem } from "../types/zabbixApiREsponse";
 
 export type ActionTypeValue =
   | "SEND_REPORT"
   | "CHECK_REPORT_DATA"
-  | "RENDER_REPORT";
+  | "RENDER_REPORT"
+  | "REPORT_GET_DATA";
 export interface IActionBody {
   action: ActionTypeValue;
 }
@@ -58,9 +62,11 @@ class ReportController {
                   const sendEmail_nodemailer = await mailService.sendReport('anton.kulakoff@ya.ru', renderResult.fileName)
                   // console.log(sendEmail)
                   console.log(sendEmail_nodemailer)
-                  res.json({ message: "report sended", 
-                  // status: sendEmail.data.status, 
-                  nodemailer: sendEmail_nodemailer })
+                  res.json({
+                    message: "report sended",
+                    // status: sendEmail.data.status, 
+                    nodemailer: sendEmail_nodemailer
+                  })
                 }
               })
 
@@ -68,6 +74,42 @@ class ReportController {
           }
           // отправляем данные для рендера отчета
           // await reportService.renderReport();
+        }
+
+
+        case "REPORT_GET_DATA": {
+          //получение данных из ZABBIX API и последующая запись в БД
+          const zabbixData = await zabbixApiService.getCountersTelemetry()
+          console.log("zabbixData-length: ", zabbixData?.length);
+
+          const saveData = () => {
+            return new Promise((resolve, reject) => {
+              const saveApiData = zabbixData?.map(async item => {
+                const { serialNumber, value } = item
+                return await countersService.saveCounterData({ serial_number: serialNumber, value: value.toString() })
+              })
+              resolve(saveApiData)
+
+            })
+
+          }
+
+          saveData().then(data => res.json(zabbixData)).catch(console.log)
+
+          // const saveApiData = zabbixData?.map(async item => {
+          //   const { serialNumber, value } = item
+          //   return await countersService.saveCounterData({ serial_number: serialNumber, value: value.toString() })
+          // })
+          // saveApiData?.then(console.log)
+
+
+          // zabbixData && zabbixData.forEach(async (item: IResponseCounterItem) => {
+          //   const { serialNumber, value } = item
+          //   console.log("ITEM >>> ", "sn: " + item.serialNumber, "value: " + item.value)
+          //   await countersService.saveCounterData({ serial_number: serialNumber, value: value.toString() })
+          // })
+
+          // res.json(zabbixData)
         }
 
         // default:

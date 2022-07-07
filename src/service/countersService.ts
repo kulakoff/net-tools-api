@@ -240,6 +240,10 @@ class CountersService {
       return error;
     }
   }
+
+
+
+
 }
 
 export default new CountersService();
