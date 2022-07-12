@@ -47,7 +47,7 @@ class ZabbixApiService {
                 .then(async (getHosts: any) => {
                     return await Promise.all(
                         //модифицировать массив getHosts добавив него показания счетчиков за указанный период...
-                        getHosts.map(async (mapData: any) => {
+                        await getHosts.map(async (mapData: any) => {
                             // let container = new Array();
 
                             //получение itemId запрашиваемоо элемента

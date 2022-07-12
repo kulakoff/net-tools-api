@@ -183,15 +183,19 @@ class CountersService {
    */
   async saveCounterData({ serial_number, value }: IMeterReadings2) {
     try {
-      const res = await counters_data.create({
+      return await counters_data.create({
         value,
         counter_id: await counters
           .findOne({ attributes: ["id"], where: { serial_number } })
-          .then(({ id }: any) => (id ? id : null)),
+          .then(({ id }: any) => (id ? id : null))
+          .catch(console.log)
+          
       });
-      return res;
+      // throw new Error("QQQ");
+      
+      
     } catch (error: any) {
-      console.log(error);
+      console.log("saveCounterData >>> ",error);
       return error;
     }
   }
@@ -214,8 +218,8 @@ class CountersService {
       console.log(results, metadata);
       return "res";
     } catch (error: any) {
-      console.log(error);
-      return error;
+      console.log(error.message.code);
+      return error.message.code;
     }
   }
 

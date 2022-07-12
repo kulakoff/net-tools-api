@@ -1,3 +1,4 @@
+import { rejects } from "assert";
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../exceptions/apiError";
 import countersService from "../service/countersService";
@@ -82,19 +83,42 @@ class ReportController {
           const zabbixData = await zabbixApiService.getCountersTelemetry()
           console.log("zabbixData-length: ", zabbixData?.length);
 
-          const saveData = () => {
-            return new Promise((resolve, reject) => {
-              const saveApiData = zabbixData?.map(async item => {
-                const { serialNumber, value } = item
-                return await countersService.saveCounterData({ serial_number: serialNumber, value: value.toString() })
+          // const saveData = async () => {
+          //   return await new Promise(async (resolve, reject) => {
+          //      zabbixData?.map(async item => {
+          //       const { serialNumber, value } = item
+          //       return await countersService.saveCounterData({ serial_number: serialNumber, value: value.toString() })
+          //         .then(saveData => {
+          //           // console.log(saveData);
+          //           saveData && 
+          //           resolve({mesage:"write"})
+          //         }).catch(error => reject(error))
+          //     })
+
+
+
+          //   })
+
+          // }
+
+          const saveResult = async () => {
+            Promise.all([zabbixData?.map(async item => {
+              const { serialNumber, value } = item
+              return await countersService.saveCounterData({ serial_number: serialNumber, value: value.toString() }).then(async data=>{
+                // console.log(data)
+                return data
               })
-              resolve(saveApiData)
 
+            })]).then(async data => {
+              console.log("PROMISE ALL: >>>",  data)
+              return data
             })
-
           }
 
-          saveData().then(data => res.json(zabbixData)).catch(console.log)
+          saveResult().then(data => {
+            console.log("data >>> : ", data)
+            res.json(zabbixData)
+          }).catch(console.log)
 
           // const saveApiData = zabbixData?.map(async item => {
           //   const { serialNumber, value } = item
