@@ -9,7 +9,11 @@ import {
 } from "../models/sequelize/init-models";
 initModels(sequelizeConnection);
 
-import { iCounterItem, counterModel, ICounterDataItem } from "../types/counters";
+import {
+  iCounterItem,
+  counterModel,
+  ICounterDataItem,
+} from "../types/counters";
 
 export interface IgetCounterDataHistory {
   id: number;
@@ -187,15 +191,12 @@ class CountersService {
         value,
         counter_id: await counters
           .findOne({ attributes: ["id"], where: { serial_number } })
-          .then(({ id }: any) => (id ? id : null))
-          .catch(console.log)
+          .then(({ id }: any) => id)
           
-      });
+                });
       // throw new Error("QQQ");
-      
-      
     } catch (error: any) {
-      console.log("saveCounterData >>> ",error);
+      console.log("saveCounterData >>> ", error);
       return error;
     }
   }
@@ -244,10 +245,6 @@ class CountersService {
       return error;
     }
   }
-
-
-
-
 }
 
 export default new CountersService();

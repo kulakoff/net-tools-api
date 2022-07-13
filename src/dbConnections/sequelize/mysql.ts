@@ -21,7 +21,8 @@ export const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
   //   dateStrings: true,
   //   typeCast: true,
   // },
-  // timezone: "+03:00",
+  timezone: "+03:00",
+  logging: false,
 });
 
 export default sequelizeConnection;
