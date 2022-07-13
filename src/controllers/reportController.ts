@@ -11,9 +11,9 @@ import { ICounterDataItem, IDataForReport } from "../types/counters";
 import { IResponseCounterItem } from "../types/zabbixApiREsponse";
 
 export type ActionTypeValue =
-  | "SEND_REPORT"
-  | "CHECK_REPORT_DATA"
-  | "RENDER_REPORT"
+  | "REPORT_SEND"
+  | "REPORT_CHECK_DATA"
+  | "REPORT_SEND_TO_EMAIL"
   | "REPORT_GET_DATA";
 export interface IActionBody {
   action: ActionTypeValue;
@@ -27,22 +27,23 @@ class ReportController {
       const { action }: IActionBody = req.body;
       console.log("action", action);
       switch (action) {
-        case "CHECK_REPORT_DATA": {
+        case "REPORT_CHECK_DATA": 
           //1 сделать выборку из БД с данными для отчета
           console.log("Проверка данных перед отправкой отчета");
-          const report = await CountersService.getReport();
-          res.json(report);
-        }
+          const reportFromDb = await CountersService.getReport();
+          res.json(reportFromDb);
+          break
+        
 
-        case "SEND_REPORT": {
+        case "REPORT_SEND": 
           //сделать запись в тамлице reports об успешно отпраленном отчете //2 сгенерировать файл отчета и отправить на почту в сбытовую компанию
           console.log("Выполнить отправку отчета в сбытовую компанию");
           res.json({
             message: "Выполнить отправку отчета в сбытовую компанию",
           });
-        }
+          break
 
-        case "RENDER_REPORT": {
+        case "REPORT_SEND_TO_EMAIL": 
           //Получаем  данные из БД
           const report = await CountersService.getReport();
           // Дополняем данные из БД для фломарования отчета
@@ -57,7 +58,7 @@ class ReportController {
             //создаем файл отчета
             await reportService
               .renderReport(makeReportData)
-              .then(async (renderResult) => {
+              .then(async (renderResult: any) => {
                 if (renderResult.fileName) {
                   //отправка на почту
                   // const sendEmail = await mailApiService.sendReportMail('anton.kulakoff@ya.ru', renderResult.fileName)
@@ -66,81 +67,62 @@ class ReportController {
                     renderResult.fileName
                   );
                   // console.log(sendEmail)
-                  console.log(sendEmail_nodemailer);
+                  // console.log(sendEmail_nodemailer);
                   res.json({
                     message: "report sended",
                     // status: sendEmail.data.status,
-                    nodemailer: sendEmail_nodemailer,
+                    nodemailer: sendEmail_nodemailer.response,
                   });
                 }
               });
           }
+          break
           // отправляем данные для рендера отчета
           // await reportService.renderReport();
-        }
+        
 
-        case "REPORT_GET_DATA": {
-          //получение данных из ZABBIX API и последующая запись в БД
-          const zabbixData = await zabbixApiService.getCountersTelemetry();
-          console.log("GET data from zabbix api OK >>> ");
-
-          // const saveData = async () => {
-          //   return await new Promise(async (resolve, reject) => {
-          //      zabbixData?.map(async item => {
-          //       const { serialNumber, value } = item
-          //       return await countersService.saveCounterData({ serial_number: serialNumber, value: value.toString() })
-          //         .then(saveData => {
-          //           // console.log(saveData);
-          //           saveData &&
-          //           resolve({mesage:"write"})
-          //         }).catch(error => reject(error))
-          //     })
-
-          //   })
-
-          // }
-
-          const saveResult = async () => {
-            Promise.all([
-              zabbixData?.map(async (item) => {
-                const { serialNumber, value } = item;
-                return await countersService.saveCounterData({
-                  serial_number: serialNumber,
-                  value: value.toString(),
-                });
-              }),
-            ]).then((data) => {
-              console.log("PROMISE ALL: >>>", data);
-              // return  data;
-            });
-          };
-
-          saveResult()
-            .then(async (data) => {
-              console.log("data >>> : ", data);
-              res.json(zabbixData);
+        //получение данных из ZABBIX API и последующая запись в БД
+        case "REPORT_GET_DATA":
+          console.log("REPORT_GET_DATA")
+          await zabbixApiService.getCountersTelemetry()
+            //Ответ от API
+            .then((zResponse) => {
+              //вохвращаем true если все данные полкченные от API были сохранены в бд
+              return zResponse && Promise.all(
+                zResponse?.map(async (item) => {
+                  const { serialNumber, value } = item;
+                  return await countersService.saveCounterData({
+                    serial_number: serialNumber,
+                    value: value.toString(),
+                  }).then(saveResp => {
+                    //вернем статус для каждого сохраненного элемента
+                    return saveResp._options.isNewRecord
+                  })
+                })
+              )
+                .then(promiseData => {
+                  const checker: boolean = promiseData.every(element => element)
+                  if (checker) {
+                    return {
+                      status: "ok", message: "zRespone saved to db"
+                    }
+                  } else { throw new Error("непредвиденная ошибка!") }
+                })
             })
-            .catch(console.log);
+            .then(data => {
+              // console.log("FINALITY DATA: ", data)
+              res.json(data)
+            })
+            .catch(console.log)
+            break
 
-          // const saveApiData = zabbixData?.map(async item => {
-          //   const { serialNumber, value } = item
-          //   return await countersService.saveCounterData({ serial_number: serialNumber, value: value.toString() })
-          // })
-          // saveApiData?.then(console.log)
 
-          // zabbixData && zabbixData.forEach(async (item: IResponseCounterItem) => {
-          //   const { serialNumber, value } = item
-          //   console.log("ITEM >>> ", "sn: " + item.serialNumber, "value: " + item.value)
-          //   await countersService.saveCounterData({ serial_number: serialNumber, value: value.toString() })
-          // })
+        default:
+          next(ApiError.BadRequest("action fail"));
 
-          // res.json(zabbixData)
-        }
-
-        // default:
-        //   res.sendStatus(200);
       }
-      // res.sendStatus(200);
+
+
     } catch (error) {
       console.log(error);
       next(ApiError.BadRequest("Непредвиденная ошибка"));

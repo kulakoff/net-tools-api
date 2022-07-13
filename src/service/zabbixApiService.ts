@@ -23,7 +23,6 @@ class ZabbixApiService {
     )
   ) {
     try {
-      console.log("ZabbixApiService getTelemetry >>>>");
       //Human data to unixtime
       const reqMoment = new Date(requestTimestamp).getTime() / 1000;
 
