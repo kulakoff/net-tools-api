@@ -81,7 +81,7 @@ class ReportController {
           // await reportService.renderReport();
         
 
-        //получение данных из ZABBIX API и последующая запись в БД
+        //получение данных из ZABBIX API, запись в БД
         case "REPORT_GET_DATA":
           console.log("REPORT_GET_DATA")
           await zabbixApiService.getCountersTelemetry()
