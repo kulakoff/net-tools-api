@@ -8,6 +8,9 @@ export interface iCounterItem {
   model: counterModel;
   address: string;
   customer_id: number;
+  provider_id: number;
+  card_number: string;
+  telemetry: boolean
 }
 
 export interface ICounterDataHistoryItem {

@@ -1,11 +1,13 @@
 //mysql
-import { QueryTypes } from "sequelize";
+import { timeStamp } from "console";
+import { QueryTypes, Op } from "sequelize";
 import sequelize from "../dbConnections/sequelize";
 import sequelizeConnection from "../dbConnections/sequelize";
 import {
   initModels,
   counters,
   counters_data,
+  reports
 } from "../models/sequelize/init-models";
 initModels(sequelizeConnection);
 
@@ -36,6 +38,10 @@ export interface IMeterReadings {
 export interface IMeterReadings2 {
   serial_number: string;
   value: string;
+}
+export interface IReportCompletion {
+  customer_id: number;
+  provider_id: number
 }
 
 class CountersService {
@@ -82,6 +88,7 @@ class CountersService {
     model,
     address,
     customer_id,
+    provider_id
   }: iCounterItem) {
     try {
       console.log("CountersService.addCounter | Добавление прибора учета");
@@ -90,6 +97,7 @@ class CountersService {
         model,
         address,
         customer_id,
+        provider_id,
       });
       return newCounter;
     } catch (error: any) {
@@ -192,8 +200,8 @@ class CountersService {
         counter_id: await counters
           .findOne({ attributes: ["id"], where: { serial_number } })
           .then(({ id }: any) => id)
-          
-                });
+
+      });
       // throw new Error("QQQ");
     } catch (error: any) {
       console.log("saveCounterData >>> ", error);
@@ -245,6 +253,24 @@ class CountersService {
       return error;
     }
   }
+
+  async reportCompletion({ customer_id, provider_id }: IReportCompletion) {
+    return await reports.create({ customer_id, provider_id })
+  }
+
+  async reportCompletionCheck({ customer_id, provider_id }: IReportCompletion) {
+    const [results] = await sequelize.query(`
+    SELECT * FROM reports 
+    WHERE 
+    customer_id = ${customer_id} AND (
+    MONTH(timestamp) = MONTH (NOW()) 
+    AND YEAR(timestamp) = YEAR(NOW()))
+    LIMIT 1
+    `, { model: reports })
+    // console.log(results)
+    if (reports ) return results
+  }
+
 }
 
 export default new CountersService();
