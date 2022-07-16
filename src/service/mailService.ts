@@ -64,7 +64,7 @@ class MailService {
             from: '"ООО ЛАНТА, приборы учета" <kav@lanta-net.ru>', // sender address
             to, // list of receivers
             // bcc: 'akulakov@lanta-net.ru', //скрытая копия
-            subject: `ООО ЛАНТА, показания счетчиков ${reportDate} ✔`, // Subject line
+            subject: `ООО ЛАНТА, показания приборов учета ${reportDate} ✔`, // Subject line
             html: `<div>Здравствуйте, во вложении файл с показаниями счетчиков от ${reportDate}</div>
             <div>Пожалуйста, не отвечайте на это письмо, так как оно сгенерировано автоматически.</div>
             <div>Если у Вас есть дополнительные вопросы, Вы можете использовать этот адрес для ответа: <a href="mailto:tech@lanta-net.ru">tech@lanta-net.ru</a></div>
