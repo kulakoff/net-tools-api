@@ -10,6 +10,7 @@ export interface countersAttributes {
   telemetry: number;
   card_number?: string;
   customer_id: number;
+  provider_id: number;
 }
 
 export type countersPk = "id";
@@ -25,6 +26,7 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
   telemetry!: number;
   card_number?: string;
   customer_id!: number;
+  provider_id!: number;
 
   // counters hasMany counters_data via counter_id
   counters_data!: counters_data[];
@@ -71,6 +73,10 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
     customer_id: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    provider_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   }, {
     sequelize,
@@ -90,6 +96,13 @@ export class counters extends Model<countersAttributes, countersCreationAttribut
         using: "BTREE",
         fields: [
           { name: "customer_id" },
+        ]
+      },
+      {
+        name: "counters_provider_id_IDX",
+        using: "BTREE",
+        fields: [
+          { name: "provider_id" },
         ]
       },
     ]
