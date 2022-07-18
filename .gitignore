@@ -1,5 +1,10 @@
 .env
-node_modules
-demo
-_dbConnect
 .env.development 
+package-lock.json
+##temp render report directory
+reports
+dist
+node_modules
+##
+_dbConnect
+test

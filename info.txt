@@ -1,2 +1,5 @@
 generate token secret
 require('crypto').randomBytes(64).toString('hex')
+
+- роут "/me" для получания даннх о пользователе на основании его токена
+- вложенные роут объеденив по группам endpoints
