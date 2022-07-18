@@ -8,6 +8,10 @@ import errorMiddleware from "./middlewares/errorMiddleware";
 import rateLimitMiddleware from "./middlewares/rateLimitMiddleware";
 import corsMiddleware from "./middlewares/corsMiddleware";
 
+//TEST cron
+import seeder from "./utils/seeder";
+seeder.start()
+
 const PORT = process.env.PORT as string || "5000"
 const app: Application = express();
 
