@@ -8,7 +8,9 @@ import errorMiddleware from "./middlewares/errorMiddleware";
 import rateLimitMiddleware from "./middlewares/rateLimitMiddleware";
 import corsMiddleware from "./middlewares/corsMiddleware";
 
-//TEST cron
+//Utils 
+
+//Планировщик, опрос API в отчетный период 25 числа кажого месяца и сохранение данные в БД
 import seeder from "./utils/seeder";
 seeder.start()
 
