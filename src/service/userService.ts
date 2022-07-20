@@ -1,15 +1,21 @@
 import UserModel from "../models/userModel";
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4 } from "uuid";
 import mailApiService from "./mailApiService";
 import tokenService from "./tokenService";
 import UserDto from "./../dtos/userDto";
 import ApiError from "./../exceptions/apiError";
-import { IRegistrationFormData } from "./../types/user"
+import { IRegistrationFormData } from "./../types/user";
+import { ROLES_LIST } from "../config/rolesList";
 
 class UserService {
-  async registration({ firstName, lastName, email, phoneNumber, password }: IRegistrationFormData) {
-
+  async registration({
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    password,
+  }: IRegistrationFormData) {
     const candidate = await UserModel.findOne({ email, phoneNumber });
     console.log(candidate);
     if (candidate) {
@@ -31,6 +37,7 @@ class UserService {
       phoneNumber,
       password: hoashPassword,
       activationLink,
+      roles: [ROLES_LIST.User],
     });
 
     //TODO:
@@ -55,13 +62,14 @@ class UserService {
 
   async activate(activationLink: string) {
     const user = await UserModel.findOne({ activationLink: activationLink });
-    console.log("activate: ", user)
+    console.log("activate: ", user);
     if (!user) {
       // throw new Error("Некорректная ссылка активации");
       throw ApiError.BadRequest("Некорректная ссылка активации");
     } else if (user.isActivated)
       throw ApiError.BadRequest("Некорректная ссылка активации");
     user.isActivated = true;
+    user.activatedAt = new Date();
     await user.save();
   }
 
@@ -142,7 +150,11 @@ class UserService {
 
     //TODO:
     // Сохраняем данные в базу. Заменить стрый токен на новый
-    await tokenService.updateToken(userDto.id, tokens.refreshToken, refreshToken);
+    await tokenService.updateToken(
+      userDto.id,
+      tokens.refreshToken,
+      refreshToken
+    );
     return {
       ...tokens,
       user: userDto,

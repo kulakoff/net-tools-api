@@ -11,9 +11,9 @@ const UserSchema = new Schema(
     phoneNumber: { type: String, unique: true, require: false },
     password: { type: String, require: true },
     isActivated: { type: Boolean, default: false },
-    active: { type: Boolean, default: false },
+    activatedAt: { type: Date || null, default: null },
     activationLink: { type: String },
-    roles:{}
+    roles: [Number],
   },
   {
     versionKey: false,
