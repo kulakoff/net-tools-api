@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import mailApiService from "./mailApiService";
 import tokenService from "./tokenService";
-import UserDto from "./../dtos/userDto";
+import { UserDto } from "./../dtos/userDto";
 import ApiError from "./../exceptions/apiError";
 import { IRegistrationFormData } from "./../types/user";
 import { ROLES_LIST } from "../config/rolesList";
@@ -164,6 +164,10 @@ class UserService {
   async getAllUsers() {
     const users = await UserModel.find();
     return users;
+  }
+
+  async getUserInfo(id: string) {
+    return await UserModel.findById(id)
   }
 }
 

@@ -6,6 +6,10 @@ import userController from "./../controllers/userController";
 import deviceController from "./../controllers/devideController";
 import countersController from "../controllers/countersController";
 import authMiddleware from "../middlewares/authMiddleware";
+
+import userRolesVerify from "../middlewares/userRolesVerify"
+import { ROLES_LIST } from "../config/rolesList";
+
 import reportController from "../controllers/reportController";
 
 export const router = Router();
@@ -20,12 +24,14 @@ router.post("/login", userController.login);
 router.post("/logout", userController.logout);
 router.get("/activate/:link", userController.activate);
 router.get("/refresh", userController.refresh);
+router.get("/me",authMiddleware, userController.userInformation)
 //TODO: сделать роут "/me" для получания даннх о пользователе на основании его токена
 
-router.get("/users", authMiddleware, userController.getUsers);
+router.get("/users", authMiddleware, userRolesVerify(ROLES_LIST.Admin, ROLES_LIST.SuperAdmin), userController.getUsers);
 /**
  * Поиск CPE по MAC / SN
  */
+router.use(authMiddleware,userRolesVerify(ROLES_LIST.Editor))
 router.get("/device", authMiddleware, deviceController.getDevice);
 /**
  * Изменить шаблон CPE
