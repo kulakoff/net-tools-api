@@ -4,8 +4,8 @@ import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 import ApiError from "./../exceptions/apiError";
 import { UserInfoDto } from "../dtos/userDto";
-let clientUrl: string = process.env.CLIENT_URL || "http://192.168.13.20:3000"
-console.log(clientUrl)
+let clientUrl: string = process.env.CLIENT_URL || "http://192.168.13.20:3000" // редирект после активации на этот урл
+
 
 class UserController {
   async registration(req: Request, res: Response, next: NextFunction) {
@@ -86,6 +86,7 @@ class UserController {
 
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log("REFRESH_ENDPOINT")
       const { refreshToken } = req.cookies;
       const userData = await userService.refresh(refreshToken);
       //генерирует токен

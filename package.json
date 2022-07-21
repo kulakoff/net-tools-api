@@ -4,9 +4,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "npx env-cmd -f .env.development nodemon src/server.ts",
+    "dev": "npx env-cmd -f .development.env nodemon src/server.ts",
     "dev:build_db_models": "sequelize-auto -c sequelize-auto.json -x",
-    "build": "tsc -p ."
+    "build": "npx env-cmd -f .production.env tsc -p ."
   },
   "keywords": [],
   "author": "",

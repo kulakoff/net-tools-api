@@ -1,4 +1,5 @@
 import UserModel from "../models/userModel";
+import RolesModel from '../models/userRolesModel'
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import mailApiService from "./mailApiService";
@@ -16,6 +17,13 @@ class UserService {
     phoneNumber,
     password,
   }: IRegistrationFormData) {
+
+    const addUserRole = new RolesModel({ value: "user" })
+    const addAdminRole = new RolesModel({ value: "admin" })
+    await addUserRole.save()
+    await addAdminRole.save()
+    const userRole = await RolesModel.findOne({ value: "user" })
+
     const candidate = await UserModel.findOne({ email, phoneNumber });
     console.log(candidate);
     if (candidate) {
@@ -37,7 +45,7 @@ class UserService {
       phoneNumber,
       password: hoashPassword,
       activationLink,
-      roles: [ROLES_LIST.User],
+      roles: [userRole.value],
     });
 
     //TODO:

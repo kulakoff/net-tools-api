@@ -1,5 +1,6 @@
-.env
-.env.development 
+.production.env
+.development.env
+
 package-lock.json
 ##temp render report directory
 reports

@@ -13,7 +13,7 @@ const UserSchema = new Schema(
     isActivated: { type: Boolean, default: false },
     activatedAt: { type: Date || null, default: null },
     activationLink: { type: String },
-    roles: [Number],
+    roles: [{type: String, ref: 'Role'}],
   },
   {
     versionKey: false,
