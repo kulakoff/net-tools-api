@@ -1,15 +1,26 @@
 import ApiError from "./../exceptions/apiError";
 import { Request, Response, NextFunction } from "express";
 
-//TODO доделать типизацию для err
-const errorMiddleware = (err: any, req: Request, res: Response, next: NextFunction) => {
-  console.log(err);
+
+const errorMiddleware = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("ERR: >>> ", err);
+  err.status = err.status || "error";
+  err.statusCode = err.statusCode || 500;
+  err.message = err.message || "Непредиденная ошибка"
+
   if (err instanceof ApiError) {
     return res
       .status(err.status)
-      .json({ message: err.message, errors: err.errors });
+      .json({ status: err.status,message: err.message, errors: err.errors });
   }
-  return res.status(500).json({ message: "Непредвиденная ошибка" });
+  return res
+    .status(err.statusCode)
+    .json({ status: err.status, message: err.message });
 };
 
 export default errorMiddleware;

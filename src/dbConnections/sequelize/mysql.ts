@@ -4,7 +4,7 @@ import { Dialect, Sequelize } from "sequelize";
 const dbName = process.env.SEQUELIZE_DB_NAME as string;
 const dbUser = process.env.SEQUELIZE_DB_USER as string;
 const dbHost = process.env.SEQUELIZE_DB_HOST;
-const dbDriver = process.env.SEQUELIZE_DB_DRIVER as Dialect;
+const dbDriver = process.env.SEQUELIZE_DB_DRIVER as Dialect || "mysql"
 const dbPassword = process.env.SEQUELIZE_DB_PASSWORD as string;
 
 export const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
@@ -16,11 +16,6 @@ export const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
     acquire: 30000,
     idle: 10000,
   },
-  // dialectOptions: {
-  //   useUTC: false, //for reading from database
-  //   dateStrings: true,
-  //   typeCast: true,
-  // },
   timezone: "+03:00",
   logging: false,
 });
