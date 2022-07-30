@@ -1,5 +1,5 @@
-require("dotenv").config();
-import { createConnection, } from "mongoose";
+import { appConfig } from "../config";
+import { createConnection } from "mongoose";
 
 const mongoseeOptions = {
   useNewUrlParser: true,
@@ -13,7 +13,8 @@ const makeNewConnection = (uri: string) => {
   const db = createConnection(uri, mongoseeOptions);
 
   db.on("error", (error) => {
-    // console.log(`MongoDB :: connection ${this.name} ${JSON.stringify(error)}`);
+    console.log(error);
+    console.log(`MongoDB :: connection ${db.name} :: ${new Date().toLocaleString("RU")} :: ${JSON.stringify(error)}`);
     db.close().catch(() =>
       // console.log(`MongoDB :: failed to close connection ${this.name}`)
       console.log("MongoDB :: failed to close connection ", error)
@@ -21,29 +22,25 @@ const makeNewConnection = (uri: string) => {
   });
 
   db.on("connected", () => {
-    // mongoose.set("debug", function (col, method, query, doc) {
+    console.log(`MongoDB :: connected ${db.name} :: ${new Date().toLocaleString("RU")}`);
+
+    // db.set("debug", function (col:any, method:any, query:any, doc:any) {
     //   console.log(
-    //     `MongoDB :: ${this.conn.name} ${col}.${method}(${JSON.stringify(
+    //     `MongoDB :: ${db.name} ${col}.${method}(${JSON.stringify(
     //       query
     //     )},${JSON.stringify(doc)})`
     //   );
-    // });
-    //
-    // console.log(`MongoDB :: connected ${this.name}`);
+    // });  
   });
 
   db.on("disconnected", () => {
-    console.log(`MongoDB :: disconnected `);
-    // console.log(`MongoDB :: disconnected ${this.name}`);
+    console.log(`MongoDB :: disconnected ${db.name} :: ${new Date().toLocaleString("RU")}`);
   });
 
   return db;
 };
 
-const authConnection = makeNewConnection(process.env.DB_URL_AUTH || "");
-const deviceConnection = makeNewConnection(process.env.DB_URL_CPE || "");
+const authConnection = makeNewConnection(appConfig.mongoURLs.auth);
+const deviceConnection = makeNewConnection(appConfig.mongoURLs.cpe);
 
-export  {
-  authConnection,
-  deviceConnection,
-};
+export { authConnection, deviceConnection };

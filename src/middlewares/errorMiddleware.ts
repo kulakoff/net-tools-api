@@ -8,7 +8,6 @@ const errorMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("ERR: >>> ", err);
   err.status = err.status || "error";
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Непредиденная ошибка"

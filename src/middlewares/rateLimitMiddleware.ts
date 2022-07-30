@@ -7,4 +7,5 @@ const rateLimitMiddleware = rateLimit({
   statusCode: 429,
   headers: true,
 });
+
 export default rateLimitMiddleware 

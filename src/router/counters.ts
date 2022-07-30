@@ -1,6 +1,7 @@
 import { Router } from "express";
 import countersController from "../controllers/countersController";
 import authMiddleware from "../middlewares/authMiddleware";
+
 export const counterRouter = Router();
 
 counterRouter.use(authMiddleware)

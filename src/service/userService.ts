@@ -1,5 +1,5 @@
 import UserModel from "../models/userModel";
-import RolesModel from '../models/userRolesModel'
+import RolesModel from "../models/userRolesModel";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import mailApiService from "./mailApiService";
@@ -17,12 +17,11 @@ class UserService {
     phoneNumber,
     password,
   }: IRegistrationFormData) {
-
-    const addUserRole = new RolesModel({ value: "user" })
-    const addAdminRole = new RolesModel({ value: "admin" })
-    await addUserRole.save()
-    await addAdminRole.save()
-    const userRole = await RolesModel.findOne({ value: "user" })
+    const addUserRole = new RolesModel({ value: "user" });
+    const addAdminRole = new RolesModel({ value: "admin" });
+    await addUserRole.save();
+    await addAdminRole.save();
+    const userRole = await RolesModel.findOne({ value: "user" });
 
     const candidate = await UserModel.findOne({ email, phoneNumber });
     console.log(candidate);
@@ -81,8 +80,9 @@ class UserService {
     await user.save();
   }
 
-  async login(email: any, password: string) {
-    console.log(email, password);
+  async login(email: string, password: string) {
+    //Get user from collection
+    console.log(email);
     const user = await UserModel.findOne({ email });
     if (!user) {
       throw ApiError.UnprocessableEntity(
@@ -90,6 +90,8 @@ class UserService {
         { email: `${email} не найден` }
       );
     }
+
+    //compare imput password  and db data
     const isPassEqual = await bcrypt.compare(password, user.password);
     if (!isPassEqual) {
       throw ApiError.UnprocessableEntity(
@@ -100,13 +102,18 @@ class UserService {
         }
       );
     }
+    //modify user data
     const userDto = new UserDto(user);
-    const tokens = tokenService.generateTokens({ ...userDto });
-    // console.log("| UserService | login | token | ");
-    // console.log("tokenService.generateTokens: ", tokens);
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+
+    //make tokens
+    const { accessToken, refreshToken, deviceId } =
+      await tokenService.generateTokensFeature({ ...userDto });
+
+    // await tokenService.saveToken(userDto.id, refreshToken);
     return {
-      ...tokens,
+      accessToken,
+      refreshToken,
+      deviceId,
       user: userDto,
     };
   }
@@ -175,7 +182,7 @@ class UserService {
   }
 
   async getUserInfo(id: string) {
-    return await UserModel.findById(id)
+    return await UserModel.findById(id);
   }
 }
 

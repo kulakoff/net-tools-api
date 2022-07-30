@@ -1,20 +1,64 @@
 import { sign, verify } from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import redisClient from "../dbConnections/redis";
+
 import TokenModel from "../models/tokenModel";
 
 class TokenService {
   generateTokens(payload: any) {
-    const accessToken = sign(payload, process.env.JWT_ACCESS_SECRET || "secret1", {
-      expiresIn: process.env.JWT_ACCESS_EXPIRESIN || "15m",
-    });
-    const refreshToken = sign(payload, process.env.JWT_REFRESH_SECRET || "secret2", {
-      expiresIn: process.env.JWT_REFRESH_EXPIRESIN || "7d",
-    });
+    const accessToken = sign(
+      payload,
+      process.env.JWT_ACCESS_SECRET || "JWT_ACCESS_SECRET",
+      {
+        expiresIn: process.env.JWT_ACCESS_EXPIRESIN || "15m",
+      }
+    );
+    const refreshToken = sign(
+      payload,
+      process.env.JWT_REFRESH_SECRET || "JWT_REFRESH_SECRET",
+      {
+        expiresIn: process.env.JWT_REFRESH_EXPIRESIN || "7d",
+      }
+    );
     return { accessToken, refreshToken };
+  }
+
+  async generateTokensFeature(props: any) {
+    //Create session ID
+    const sessionId = uuidv4();
+    const deviceId = uuidv4();
+    const payload = { ...props, deviceId, sessionId };
+
+    const accessToken = sign(
+      payload,
+      process.env.JWT_ACCESS_SECRET || "JWT_ACCESS_SECRET",
+      {
+        expiresIn: process.env.JWT_ACCESS_EXPIRESIN || "15m",
+      }
+    );
+    const refreshToken = sign(
+      payload,
+      process.env.JWT_REFRESH_SECRET || "JWT_REFRESH_SECRET",
+      {
+        expiresIn: process.env.JWT_REFRESH_EXPIRESIN || "7d",
+      }
+    );
+
+    await redisClient.set(
+      `${props.id}:${deviceId}`,
+      JSON.stringify(refreshToken),
+      { EX: 60 * 60 }
+    );
+
+    return { accessToken, refreshToken, deviceId };
   }
 
   valdateAccessToken(token: string) {
     try {
-      const userData = verify(token, process.env.JWT_ACCESS_SECRET || "secret3");
+      const userData = verify(
+        token,
+        process.env.JWT_ACCESS_SECRET || "JWT_ACCESS_SECRET"
+      );
       return userData;
     } catch (error) {
       return null;
@@ -23,7 +67,10 @@ class TokenService {
 
   validateRefreshToken(token: string) {
     try {
-      const userData = verify(token, process.env.JWT_REFRESH_SECRET || "secret3");
+      const userData = verify(
+        token,
+        process.env.JWT_REFRESH_SECRET || "JWT_REFRESH_SECRET"
+      );
       // console.log("validateRefreshToken userData:", userData);
       return userData;
     } catch (error) {
@@ -56,11 +103,15 @@ class TokenService {
   }
 
   // service update fefresh token
-  async updateToken(userId: any, newRefreshToken: string, oldRefreshToken: string) {
+  async updateToken(
+    userId: any,
+    newRefreshToken: string,
+    oldRefreshToken: string
+  ) {
     const tokenData = await TokenModel.findOne({ user: userId });
     if (tokenData) {
       const filteredToken = await tokenData.refreshToken.filter(
-        (rt:any) => rt !== oldRefreshToken
+        (rt: any) => rt !== oldRefreshToken
       );
       // console.log("| updateToken | filteredToken: ",filteredToken)
       tokenData.refreshToken = [...filteredToken, newRefreshToken];
@@ -75,18 +126,18 @@ class TokenService {
     // console.log("newRefreshToken: ", newRefreshToken);
     if (tokenData) {
       tokenData.refreshToken = await tokenData.refreshToken.filter(
-        (rt:any) => rt !== refreshToken
+        (rt: any) => rt !== refreshToken
       ); ///
       return await tokenData.save();
     }
   }
 
-  async removeToken(refreshToken:string) {
+  async removeToken(refreshToken: string) {
     const tokenData = await TokenModel.deleteOne({ refreshToken });
     return tokenData;
   }
 
-  async findToken(refreshToken:string) {
+  async findToken(refreshToken: string) {
     const tokenData = await TokenModel.findOne({ refreshToken }).exec();
     return tokenData;
   }

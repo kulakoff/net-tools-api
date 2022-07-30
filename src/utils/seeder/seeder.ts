@@ -1,16 +1,14 @@
-require("dotenv").config();
 import cron from "node-cron";
 import zabbixApiService from "../../service/zabbixApiService";
 import CountersService from "../../service/countersService";
+import { appConfig } from "../../config";
 import axios from "axios";
 
 import telegramSender from "../telegram/telegramSender";
-const TELEGRAM_TOKEN: string = process.env.TELEGRAM_TOKEN || "example_token";
-const TELEGRAM_CHAT_ID: string =
-  process.env.TELEGRAM_CHAT_ID || "example_chat_id";
+
+const { token, chatId  } = appConfig.telegran;
 
 const apiToDb = async () => {
-  console.log("get data from Zabbix API & save to DB");
   await zabbixApiService
     .getCountersTelemetry()
     //Ответ от API
@@ -43,25 +41,23 @@ const apiToDb = async () => {
       );
     })
     .then((data) => {
-      // console.log("FINALITY DATA: ", data)
       console.log(data);
     })
     .catch(console.log);
 };
 
+/**
+ * Планировщик, опрос API в отчетный период 25 числа кажого месяца и сохранение данные в БД
+ */
 const seeder = cron.schedule(
-  // "40 12 19 * *", //Старт кажое 25 число месяца в 04:15
   "15 4 25 * *", //Старт кажое 25 число месяца в 04:15
   () => {
-    console.log(
-      "Запуск задачи: ",
-      new Date().toLocaleString("RU")
-    );
+    console.log("Запуск задачи: ", new Date().toLocaleString("RU"));
     apiToDb().finally(async () => {
       await telegramSender({
-        token: TELEGRAM_TOKEN,
-        chat_id: TELEGRAM_CHAT_ID,
-        text: "Данные телеметрии сохранены в БД. Внесите данные приборов учета без телеметрии и выполните отправку отчета",
+        token: token,
+        chat_id: chatId,
+        text: "Данные телеметрии сохранены в БД. Внесите показания приборов учета не оснащеных телемтрией и выполните отправку отчета в сбытовую компанию",
       });
     });
   },
