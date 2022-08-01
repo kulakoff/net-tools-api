@@ -15,7 +15,7 @@ export const signJwt = (
   //   "ascii"
   // );
   // const privateKey = fs.readFileSync(path.join(__dirname, './../../../private.key'));
-  const privateKey = fs.readFileSync(path.join(__dirname, `./keys/${key}.pem`));
+  const privateKey = fs.readFileSync(path.join(__dirname, `./keys/${key}.pem`)).toString("ascii");
 
   return jwt.sign(payload, privateKey, {
     ...(options && options),

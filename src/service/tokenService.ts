@@ -133,7 +133,7 @@ class TokenService {
     });
 
     // Sign the refresh token
-    const refreshToken = signJwt(payload, "accessTokenPrivateKey", {
+    const refreshToken = signJwt(payload, "refreshTokenPrivateKey", {
       expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
     });
 
