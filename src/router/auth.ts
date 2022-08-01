@@ -15,6 +15,6 @@ authRouter
     .post("/login", validate(loginUserSchema), userController.login)
     .post("/logout", userController.logout)
     .get("/activate/:link", userController.activate)
-    .get("/refresh", userController.refresh)
+    .get("/refresh", userController.refreshFeature)
     .get("/me", authMiddleware, userController.userInformation)
 

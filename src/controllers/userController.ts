@@ -30,14 +30,17 @@ const refreshTokenCookieOptions: CookieOptions = {
 };
 
 const deviceIdCookieOptions: CookieOptions = {
-  expires: new Date(new Date().setDate(new Date().getDate() + config.get<number>("deviceIdExpiresIn"))),
+  expires: new Date(
+    new Date().setDate(
+      new Date().getDate() + config.get<number>("deviceIdExpiresIn")
+    )
+  ),
   // maxAge: config.get<number>("deviceIdExpiresIn"),
   httpOnly: true,
   sameSite: "lax",
 };
 
 class UserController {
-  
   async registration(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
@@ -80,16 +83,8 @@ class UserController {
         userData.refreshToken,
         refreshTokenCookieOptions
       );
-      res.cookie(
-        "accessToken",
-        userData.accessToken,
-        accessTokenCookieOptions
-      );
-      res.cookie(
-        "deviceId",
-        userData.deviceId,
-        deviceIdCookieOptions
-      );
+      res.cookie("accessToken", userData.accessToken, accessTokenCookieOptions);
+      res.cookie("deviceId", userData.deviceId, deviceIdCookieOptions);
       res.json(userData);
     } catch (error) {
       console.log("login error: ", error);
@@ -130,8 +125,32 @@ class UserController {
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       console.log("REFRESH_ENDPOINT");
+      // Get the refresh token from cookie
       const { refreshToken } = req.cookies;
       const userData = await userService.refresh(refreshToken);
+      //генерирует токен
+      res.cookie("refreshToken", userData.refreshToken, {
+        maxAge: 7 * 24 * 60 * 1000, //7 day
+        httpOnly: true,
+      });
+      res.json(userData);
+    } catch (error) {
+      //TODO:
+      //переделать очистку refreshToken из cookie
+      res.clearCookie("refreshToken");
+      next(error);
+    }
+  }
+
+  async refreshFeature(req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log("REFRESH_ENDPOINT :: feature");
+      // Get the refresh token from cookie
+      const {
+        refreshToken,
+        deviceId,
+      }: { refreshToken: string; deviceId: string } = req.cookies;
+      const userData = await userService.refreshFeature(refreshToken);
       //генерирует токен
       res.cookie("refreshToken", userData.refreshToken, {
         maxAge: 7 * 24 * 60 * 1000, //7 day

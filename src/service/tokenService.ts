@@ -1,8 +1,11 @@
-import { sign, verify } from "jsonwebtoken";
+import config from "config";
+import { JwtPayload, sign, verify } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import redisClient from "../dbConnections/redis";
 
 import TokenModel from "../models/tokenModel";
+import { ITokenPayload } from "../types/user";
+import { signJwt } from "../utils/jwt/jwt";
 
 class TokenService {
   generateTokens(payload: any) {
@@ -23,31 +26,45 @@ class TokenService {
     return { accessToken, refreshToken };
   }
 
-  async generateTokensFeature(props: any) {
-    //Create session ID
+  async generateTokensFeature(props: { user: any }) {
+    console.log("props: ", props);
+    // create sessionId
     const sessionId = uuidv4();
+    // create deviceId
     const deviceId = uuidv4();
-    const payload = { ...props, deviceId, sessionId };
 
-    const accessToken = sign(
-      payload,
-      process.env.JWT_ACCESS_SECRET || "JWT_ACCESS_SECRET",
-      {
-        expiresIn: process.env.JWT_ACCESS_EXPIRESIN || "15m",
-      }
-    );
-    const refreshToken = sign(
-      payload,
-      process.env.JWT_REFRESH_SECRET || "JWT_REFRESH_SECRET",
-      {
-        expiresIn: process.env.JWT_REFRESH_EXPIRESIN || "7d",
-      }
-    );
+    const payload = { sub:props.user, deviceId, sessionId };
 
+    // const accessToken = sign(
+    //   payload,
+    //   process.env.JWT_ACCESS_SECRET || "JWT_ACCESS_SECRET",
+    //   {
+    //     expiresIn: `${config.get<number>("accessTokenExpiresIn")}m`,
+    //   }
+    // );
+    // const refreshToken = sign(
+    //   payload,
+    //   process.env.JWT_REFRESH_SECRET || "JWT_REFRESH_SECRET",
+    //   {
+    //     expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
+    //   }
+    // );
+
+    // Sign the access token
+    const accessToken = signJwt(payload, "accessTokenPrivateKey", {
+      expiresIn: `${config.get<number>("accessTokenExpiresIn")}m`,
+    });
+
+    // Sign the refresh token
+    const refreshToken = signJwt(payload, "accessTokenPrivateKey", {
+      expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
+    });
+
+    // Save user session 
     await redisClient.set(
-      `${props.id}:${deviceId}`,
+      `${props.user}:${deviceId}`,
       JSON.stringify(refreshToken),
-      { EX: 60 * 60 }
+      { EX: config.get<number>("refreshTokenExpiresIn") * 60 }
     );
 
     return { accessToken, refreshToken, deviceId };

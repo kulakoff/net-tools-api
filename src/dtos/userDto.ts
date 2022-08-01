@@ -14,6 +14,13 @@ export class UserDto {
   }
 }
 
+export class UserTokenPayload {
+  user;
+  constructor(model: any) {
+    this.user = model._id;
+  }
+}
+
 export class UserInfoDto {
   id;
   firstName;

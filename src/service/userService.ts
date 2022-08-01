@@ -4,10 +4,12 @@ import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import mailApiService from "./mailApiService";
 import tokenService from "./tokenService";
-import { UserDto } from "./../dtos/userDto";
+import { UserDto, UserTokenPayload } from "./../dtos/userDto";
 import ApiError from "./../exceptions/apiError";
-import { IRegistrationFormData } from "./../types/user";
+import { IRegistrationFormData, ITokenPayload } from "./../types/user";
 import { ROLES_LIST } from "../config/rolesList";
+import { JwtPayload } from "jsonwebtoken";
+import redisClient from "../dbConnections/redis";
 
 class UserService {
   async registration({
@@ -103,18 +105,18 @@ class UserService {
       );
     }
     //modify user data
-    const userDto = new UserDto(user);
+    const userTokenPayload = new UserTokenPayload(user);
 
     //make tokens
     const { accessToken, refreshToken, deviceId } =
-      await tokenService.generateTokensFeature({ ...userDto });
+      await tokenService.generateTokensFeature({ ...userTokenPayload });
 
     // await tokenService.saveToken(userDto.id, refreshToken);
     return {
       accessToken,
       refreshToken,
       deviceId,
-      user: userDto,
+      sub: user._id,
     };
   }
 
@@ -176,6 +178,42 @@ class UserService {
     };
   }
 
+  async refreshFeature(refreshToken: string) {
+    if (!refreshToken) {
+      throw ApiError.UnauthorizedError();
+    }
+
+    //Проверка jwt token (jwt.verify)
+    const userData: any = tokenService.validateRefreshToken(refreshToken);
+    // Поиск токена в базе
+    const existToken = redisClient.get(`${userData.user}:${userData.deviceId}`);
+    // const tokenFromDb = await tokenService.findToken(refreshToken);
+
+    //TODO
+    //проверка скомпрометированных токенов
+    if (!userData || !existToken) {
+      throw ApiError.UnauthorizedError();
+    }
+
+    // Поиск пользователя в БД по данным из токена
+    const user = await UserModel.findById(userData.user);
+    // console.log("|UserService.logout | user : ", user);
+    // Создаем payload для токена который содержит данные о пользователе (return id, email, isActivated)
+    const userDto = new UserDto(user); //return id, email, isActivated
+    const tokens = tokenService.generateTokens({ ...userDto });
+
+    //TODO:
+    // Сохраняем данные в базу. Заменить стрый токен на новый
+    await tokenService.updateToken(
+      userDto.id,
+      tokens.refreshToken,
+      refreshToken
+    );
+    return {
+      ...tokens,
+      user: userDto,
+    };
+  }
   async getAllUsers() {
     const users = await UserModel.find();
     return users;

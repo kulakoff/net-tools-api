@@ -24,7 +24,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 
 // 4. Logger
-app.use(morgan(appConfig.env === "dev" ? "dev" : "short"));
+app.use(morgan(appConfig.env === "development" ? "dev" : "short"));
 
 // 5. Cors
 app.use(corsMiddleware);

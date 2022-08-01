@@ -19,13 +19,6 @@ const {
 } = process.env;
 
 export default {
-  port: PORT || 5000,
-  accessTokenExpiresIn: 15,
-  refreshTokenExpiresIn: 60,
-  deviceIdExpiresIn: 365,
-  accessTokenPrivateKey: 'ACCESS_TOKEN_PRIVATE_KEY',
-  accessTokenPublicKey: 'ACCESS_TOKEN_PUBLIC_KEY',
-  refreshTokenPrivateKey: 'REFRESH_TOKEN_PRIVATE_KEY',
-  refreshTokenPublicKey: 'REFRESH_TOKEN_PUBLIC_KEY',
-  origin: "http://localhost:3000",
+//   accessTokenPrivateKey: JWT_ACCESS_SECRET,
+//   refreshTokenPrivateKey: JWT_REFRESH_SECRET,
 };
