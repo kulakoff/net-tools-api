@@ -225,7 +225,8 @@ class UserService {
       expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
     })
 
-    await redisClient.set(`${userData.sub}:${userData.deviceId}`, refreshToken_new)
+    await redisClient.set(`${userData.sub}:${userData.deviceId}`, refreshToken_new,
+    { EX: config.get<number>("refreshTokenExpiresIn") * 60 })
 
     //TODO:
     // Сохраняем данные в базу. Заменить стрый токен на новый

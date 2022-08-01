@@ -142,6 +142,7 @@ class TokenService {
       `${props.sub}:${props.deviceId}`,
       JSON.stringify(refreshToken),
       { EX: config.get<number>("refreshTokenExpiresIn") * 60 }
+      // {EX:60*60}
     );
 
     return { accessToken, refreshToken, deviceId:props.deviceId };
