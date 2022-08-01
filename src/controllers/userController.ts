@@ -1,5 +1,7 @@
 require("dotenv").config();
 import config from "config";
+import { v4 as uuidv4 } from "uuid";
+
 
 import userService from "../service/userService";
 import { validationResult } from "express-validator";
@@ -74,10 +76,15 @@ class UserController {
   ) {
     try {
       const { email, password } = req.body;
+      let { deviceId }: { deviceId: string } = req.cookies
 
-      const userData = await userService.login(email, password);
+      if (!deviceId) {
+        deviceId = uuidv4();
+      }
 
-      //генерирует токен
+      const userData: any = await userService.login(email, password, deviceId);
+
+      // Отдаем cookie клиенту
       res.cookie(
         "refreshToken",
         userData.refreshToken,
@@ -85,6 +92,7 @@ class UserController {
       );
       res.cookie("accessToken", userData.accessToken, accessTokenCookieOptions);
       res.cookie("deviceId", userData.deviceId, deviceIdCookieOptions);
+
       res.json(userData);
     } catch (error) {
       console.log("login error: ", error);
@@ -150,17 +158,28 @@ class UserController {
         refreshToken,
         deviceId,
       }: { refreshToken: string; deviceId: string } = req.cookies;
+      console.log(":: DEBUG :: refreshToken ", refreshToken)
+      console.log(":: DEBUG :: deviceId ", deviceId)
+
       const userData = await userService.refreshFeature(refreshToken);
-      //генерирует токен
-      res.cookie("refreshToken", userData.refreshToken, {
-        maxAge: 7 * 24 * 60 * 1000, //7 day
-        httpOnly: true,
-      });
+
+      console.log(":: DEBUG | userData :: ", userData)
+
+      // Отдаем cookie клиенту
+      res.cookie(
+        "refreshToken",
+        userData.refreshToken,
+        refreshTokenCookieOptions
+      );
+      res.cookie("accessToken", userData.accessToken, accessTokenCookieOptions);
+      res.cookie("deviceId", userData.deviceId, deviceIdCookieOptions);
+
       res.json(userData);
     } catch (error) {
+      console.log(error);
       //TODO:
       //переделать очистку refreshToken из cookie
-      res.clearCookie("refreshToken");
+      // res.clearCookie("refreshToken");
       next(error);
     }
   }
@@ -181,7 +200,7 @@ class UserController {
       const userInfoDto = new UserInfoDto(userInfo); //return id, email, isActivated
       console.log(userInfoDto);
       return res.json(userInfoDto);
-    } catch (error) {}
+    } catch (error) { }
   }
 }
 export default new UserController();

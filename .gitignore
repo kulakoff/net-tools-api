@@ -1,6 +1,3 @@
-.production.env
-.development.env
-
 package-lock.json
 ##temp render report directory
 reports
@@ -11,3 +8,6 @@ _dbConnect
 test
 .env
 .env.development
+
+#keys
+src/utils/jwt/keys

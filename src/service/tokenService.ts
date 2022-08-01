@@ -26,49 +26,7 @@ class TokenService {
     return { accessToken, refreshToken };
   }
 
-  async generateTokensFeature(props: { user: any }) {
-    console.log("props: ", props);
-    // create sessionId
-    const sessionId = uuidv4();
-    // create deviceId
-    const deviceId = uuidv4();
 
-    const payload = { sub:props.user, deviceId, sessionId };
-
-    // const accessToken = sign(
-    //   payload,
-    //   process.env.JWT_ACCESS_SECRET || "JWT_ACCESS_SECRET",
-    //   {
-    //     expiresIn: `${config.get<number>("accessTokenExpiresIn")}m`,
-    //   }
-    // );
-    // const refreshToken = sign(
-    //   payload,
-    //   process.env.JWT_REFRESH_SECRET || "JWT_REFRESH_SECRET",
-    //   {
-    //     expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
-    //   }
-    // );
-
-    // Sign the access token
-    const accessToken = signJwt(payload, "accessTokenPrivateKey", {
-      expiresIn: `${config.get<number>("accessTokenExpiresIn")}m`,
-    });
-
-    // Sign the refresh token
-    const refreshToken = signJwt(payload, "accessTokenPrivateKey", {
-      expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
-    });
-
-    // Save user session 
-    await redisClient.set(
-      `${props.user}:${deviceId}`,
-      JSON.stringify(refreshToken),
-      { EX: config.get<number>("refreshTokenExpiresIn") * 60 }
-    );
-
-    return { accessToken, refreshToken, deviceId };
-  }
 
   valdateAccessToken(token: string) {
     try {
@@ -158,5 +116,38 @@ class TokenService {
     const tokenData = await TokenModel.findOne({ refreshToken }).exec();
     return tokenData;
   }
+
+
+  async generateTokensFeature(props: { sub: any, deviceId: string }) {
+    // create sessionId
+    const sessionId = uuidv4();
+    
+    // create deviceId
+    // const deviceId = uuidv4();
+
+    const payload = { sub: props.sub, deviceId: props.deviceId, sessionId };
+
+    // Sign the access token
+    const accessToken = signJwt(payload, "accessTokenPrivateKey", {
+      expiresIn: `${config.get<number>("accessTokenExpiresIn")}m`,
+    });
+
+    // Sign the refresh token
+    const refreshToken = signJwt(payload, "accessTokenPrivateKey", {
+      expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
+    });
+
+    // Save user session 
+    await redisClient.set(
+      `${props.sub}:${props.deviceId}`,
+      JSON.stringify(refreshToken),
+      { EX: config.get<number>("refreshTokenExpiresIn") * 60 }
+    );
+
+    return { accessToken, refreshToken, deviceId:props.deviceId };
+  }
+
+
+
 }
 export default new TokenService();

@@ -1,20 +1,25 @@
 import jwt, { sign, verify, SignOptions } from "jsonwebtoken";
 import config from "config";
+import * as fs from 'fs';
+import * as path from 'path';
+
+
+
 
 export const signJwt = (
   payload: Object,
   key: "accessTokenPrivateKey" | "refreshTokenPrivateKey",
   options: SignOptions = {}
 ) => {
-  const privateKey = Buffer.from(config.get<string>(key), "base64").toString(
-    "ascii"
-  );
+  // const privateKey = Buffer.from(config.get<string>(key), "base64").toString(
+  //   "ascii"
+  // );
+  // const privateKey = fs.readFileSync(path.join(__dirname, './../../../private.key'));
+  const privateKey = fs.readFileSync(path.join(__dirname, `./keys/${key}.pem`));
 
   return jwt.sign(payload, privateKey, {
     ...(options && options),
-    // algorithm: "RS512",
-
-    
+    algorithm: "RS256",
   });
 };
 
@@ -24,16 +29,22 @@ export const signJwt = (
  * @param key  'accessTokenPublicKey' | 'refreshTokenPublicKey'
  * @returns
  */
-export const verifyJwt = <T>(
+export const    verifyJwt = <T>  (
   token: string,
-  key: "accessTokenPublicKey" | "refreshTokenPublicKey"
+  key: "accessTokenPublicKey" | "refreshTokenPublicKey",
+  // options: SignOptions = {}
 ): T | null => {
   try {
-    const publicKey = Buffer.from(config.get<string>(key), "base64").toString(
-      "ascii"
-    );
-    console.log("publicKey >>> ", publicKey);
-    return jwt.verify(token, publicKey) as T;
+
+    console.log(":: DEBUG | verifyJwt | token :: ", token)
+    // const publicKey = Buffer.from(config.get<string>(key), "base64").toString(
+    //   "ascii"
+    // );
+    const publicKey = fs.readFileSync(path.join(__dirname, `./keys/${key}.pem`)).toString("ascii");
+
+    return jwt.verify(token, publicKey,
+       { algorithms: ["RS256"] }
+       ) as T;
   } catch (error) {
     return null;
   }

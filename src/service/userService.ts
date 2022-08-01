@@ -10,6 +10,8 @@ import { IRegistrationFormData, ITokenPayload } from "./../types/user";
 import { ROLES_LIST } from "../config/rolesList";
 import { JwtPayload } from "jsonwebtoken";
 import redisClient from "../dbConnections/redis";
+import { signJwt, verifyJwt } from "../utils/jwt/jwt";
+import config from "config";
 
 class UserService {
   async registration({
@@ -82,9 +84,8 @@ class UserService {
     await user.save();
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, deviceId: string) {
     //Get user from collection
-    console.log(email);
     const user = await UserModel.findOne({ email });
     if (!user) {
       throw ApiError.UnprocessableEntity(
@@ -105,11 +106,14 @@ class UserService {
       );
     }
     //modify user data
-    const userTokenPayload = new UserTokenPayload(user);
+    // const userTokenPayload = new UserTokenPayload(user);
+
+    //Token payload 
+    const tokenPayload = { sub: user._id, deviceId }
 
     //make tokens
-    const { accessToken, refreshToken, deviceId } =
-      await tokenService.generateTokensFeature({ ...userTokenPayload });
+    const { accessToken, refreshToken } =
+      await tokenService.generateTokensFeature({ ...tokenPayload });
 
     // await tokenService.saveToken(userDto.id, refreshToken);
     return {
@@ -184,9 +188,19 @@ class UserService {
     }
 
     //Проверка jwt token (jwt.verify)
-    const userData: any = tokenService.validateRefreshToken(refreshToken);
+    const userData =  verifyJwt<{ sub: string; deviceId: string, sessionId: string }>(refreshToken, "refreshTokenPublicKey")
+    if (!userData ) {
+      throw ApiError.Forbidden("no userData verify");
+    }
+
+
+    // console.log(":: DEGUG | decoded :: ", userData)
+    // const userData: any = tokenService.validateRefreshToken(refreshToken);
     // Поиск токена в базе
-    const existToken = redisClient.get(`${userData.user}:${userData.deviceId}`);
+    const existToken = redisClient.get(`${userData?.sub}:${userData?.deviceId}`);
+    if (!existToken ) {
+      throw ApiError.Forbidden("no existToken in redis ");
+    }
     // const tokenFromDb = await tokenService.findToken(refreshToken);
 
     //TODO
@@ -196,22 +210,40 @@ class UserService {
     }
 
     // Поиск пользователя в БД по данным из токена
-    const user = await UserModel.findById(userData.user);
+    const user = await UserModel.findById(userData.sub);
     // console.log("|UserService.logout | user : ", user);
     // Создаем payload для токена который содержит данные о пользователе (return id, email, isActivated)
     const userDto = new UserDto(user); //return id, email, isActivated
-    const tokens = tokenService.generateTokens({ ...userDto });
+    // const tokens = tokenService.generateTokens({ ...userDto });
+
+    const accessToken_new = signJwt({ sub: user._id, deviceId: userData.deviceId, sessionId: userData.sessionId },
+      "accessTokenPrivateKey", {
+      expiresIn: `${config.get<number>("accessTokenExpiresIn")}m`,
+    })
+    const refreshToken_new = signJwt({ sub: user._id, deviceId: userData.deviceId, sessionId: userData.sessionId },
+      "refreshTokenPrivateKey", {
+      expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
+    })
+
+    await redisClient.set(`${userData.sub}:${userData.deviceId}`, refreshToken_new)
 
     //TODO:
     // Сохраняем данные в базу. Заменить стрый токен на новый
-    await tokenService.updateToken(
-      userDto.id,
-      tokens.refreshToken,
-      refreshToken
-    );
+    // await tokenService.updateToken(
+    //   userDto.id,
+    //   tokens.refreshToken,
+    //   refreshToken
+    // );
+
+    console.log("returned data: ",{
+      accessToken: accessToken_new, refreshToken: refreshToken_new,
+      sub: user._id,
+      deviceId: userData.deviceId
+    } )
     return {
-      ...tokens,
-      user: userDto,
+      accessToken: accessToken_new, refreshToken: refreshToken_new,
+      sub: user._id,
+      deviceId: userData.deviceId
     };
   }
   async getAllUsers() {
