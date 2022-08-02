@@ -10,8 +10,9 @@ export default class ApiError extends Error {
     this.errors = errors;
   }
 
-  static UnauthorizedError() {
-    return new ApiError(401, "Пользователь не авторизован");
+  //You are not logged in
+  static UnauthorizedError(message: string = "Пользователь не авторизован") {
+    return new ApiError(401, message);
   }
 
   static BadRequest(message: any, errors: any[] = []) {
@@ -29,4 +30,4 @@ export default class ApiError extends Error {
   static UnprocessableEntity(message: any, errors: any[any] = []) {
     return new ApiError(422, message, errors);
   }
-};
+}

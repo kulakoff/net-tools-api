@@ -2,7 +2,6 @@ require("dotenv").config();
 import config from "config";
 import { v4 as uuidv4 } from "uuid";
 
-
 import userService from "../service/userService";
 import { validationResult } from "express-validator";
 import { Request, Response, NextFunction, CookieOptions } from "express";
@@ -10,6 +9,16 @@ import ApiError from "./../exceptions/apiError";
 import { UserInfoDto } from "../dtos/userDto";
 import { LoginUserInput } from "../schema/user.schema";
 import { appConfig } from "../config";
+import redisClient from "../dbConnections/redis";
+
+// Exclude this fields from the response
+export const excludedFields = ["password"];
+
+//set minimal age for not used cookie data
+const logout = (res: Response) => {
+  res.cookie("accessToken", "", { maxAge: 1 });
+  res.cookie("refreshToken", "", { maxAge: 1 });
+};
 
 const clientUrl: string = process.env.CLIENT_URL || "http://192.168.13.20:3000"; // редирект после активации на этот урл
 
@@ -76,13 +85,13 @@ class UserController {
   ) {
     try {
       const { email, password } = req.body;
-      let { deviceId }: { deviceId: string } = req.cookies
+      let { deviceId }: { deviceId: string } = req.cookies;
 
       if (!deviceId) {
         deviceId = uuidv4();
       }
 
-      const userData: any = await userService.login(email, password, deviceId);
+      const userData = await userService.login(email, password, deviceId);
 
       // Отдаем cookie клиенту
       res.cookie(
@@ -93,14 +102,18 @@ class UserController {
       res.cookie("accessToken", userData.accessToken, accessTokenCookieOptions);
       res.cookie("deviceId", userData.deviceId, deviceIdCookieOptions);
 
-      res.json(userData);
+      res.json({
+        deviceId,
+        sub: userData.sub,
+        accessToken: userData.accessToken,
+      });
     } catch (error) {
       console.log("login error: ", error);
       next(error);
     }
   }
 
-  async logout(req: Request, res: Response, next: NextFunction) {
+  async logout_pre(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
       console.log("req.cookies.refreshToken: ", refreshToken);
@@ -112,6 +125,29 @@ class UserController {
         res.clearCookie("refreshToken");
         return res.sendStatus(204);
         // return res.json(token); ///???? переделать ответ
+      } else {
+        next(ApiError.BadRequest("Token not found"));
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async logout(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { user, deviceId } = res.locals;
+      const { refreshToken } = req.cookies;
+
+      console.log("logout ::: ", `${user._id}:${deviceId}`)
+      await redisClient.del(`${user._id}:${deviceId}`);
+
+      if (refreshToken) {
+        // const refreshToken = req.cookies.refreshToken;
+
+        // Is refreshToken in db?
+        const token = await userService.logout(refreshToken);
+        logout(res);
+        res.status(200).json({ status: "success" });
       } else {
         next(ApiError.BadRequest("Token not found"));
       }
@@ -158,12 +194,12 @@ class UserController {
         refreshToken,
         deviceId,
       }: { refreshToken: string; deviceId: string } = req.cookies;
-      console.log(":: DEBUG :: refreshToken ", refreshToken)
-      console.log(":: DEBUG :: deviceId ", deviceId)
+      console.log(":: DEBUG :: refreshToken ", refreshToken);
+      console.log(":: DEBUG :: deviceId ", deviceId);
 
       const userData = await userService.refreshFeature(refreshToken);
 
-      console.log(":: DEBUG | userData :: ", userData)
+      console.log(":: DEBUG | userData :: ", userData);
 
       // Отдаем cookie клиенту
       res.cookie(
@@ -174,7 +210,11 @@ class UserController {
       res.cookie("accessToken", userData.accessToken, accessTokenCookieOptions);
       res.cookie("deviceId", userData.deviceId, deviceIdCookieOptions);
 
-      res.json(userData);
+      res.json({
+        deviceId,
+        sub: userData.sub,
+        accessToken: userData.accessToken,
+      });
     } catch (error) {
       console.log(error);
       //TODO:
@@ -200,7 +240,7 @@ class UserController {
       const userInfoDto = new UserInfoDto(userInfo); //return id, email, isActivated
       console.log(userInfoDto);
       return res.json(userInfoDto);
-    } catch (error) { }
+    } catch (error) {}
   }
 }
 export default new UserController();

@@ -1,6 +1,7 @@
+import bcrypt from "bcrypt";
+import { omit } from "lodash";
 import UserModel from "../models/userModel";
 import RolesModel from "../models/userRolesModel";
-import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import mailApiService from "./mailApiService";
 import tokenService from "./tokenService";
@@ -12,6 +13,7 @@ import { JwtPayload } from "jsonwebtoken";
 import redisClient from "../dbConnections/redis";
 import { signJwt, verifyJwt } from "../utils/jwt/jwt";
 import config from "config";
+import { excludedFields } from "../controllers/userController";
 
 class UserService {
   async registration({
@@ -108,8 +110,8 @@ class UserService {
     //modify user data
     // const userTokenPayload = new UserTokenPayload(user);
 
-    //Token payload 
-    const tokenPayload = { sub: user._id, deviceId }
+    //Token payload
+    const tokenPayload = { sub: user._id, deviceId };
 
     //make tokens
     const { accessToken, refreshToken } =
@@ -188,17 +190,22 @@ class UserService {
     }
 
     //Проверка jwt token (jwt.verify)
-    const userData =  verifyJwt<{ sub: string; deviceId: string, sessionId: string }>(refreshToken, "refreshTokenPublicKey")
-    if (!userData ) {
+    const userData = verifyJwt<{
+      sub: string;
+      deviceId: string;
+      sessionId: string;
+    }>(refreshToken, "refreshTokenPublicKey");
+    if (!userData) {
       throw ApiError.Forbidden("no userData verify");
     }
-
 
     // console.log(":: DEGUG | decoded :: ", userData)
     // const userData: any = tokenService.validateRefreshToken(refreshToken);
     // Поиск токена в базе
-    const existToken = redisClient.get(`${userData?.sub}:${userData?.deviceId}`);
-    if (!existToken ) {
+    const existToken = redisClient.get(
+      `${userData?.sub}:${userData?.deviceId}`
+    );
+    if (!existToken) {
       throw ApiError.Forbidden("no existToken in redis ");
     }
     // const tokenFromDb = await tokenService.findToken(refreshToken);
@@ -216,17 +223,34 @@ class UserService {
     const userDto = new UserDto(user); //return id, email, isActivated
     // const tokens = tokenService.generateTokens({ ...userDto });
 
-    const accessToken_new = signJwt({ sub: user._id, deviceId: userData.deviceId, sessionId: userData.sessionId },
-      "accessTokenPrivateKey", {
-      expiresIn: `${config.get<number>("accessTokenExpiresIn")}m`,
-    })
-    const refreshToken_new = signJwt({ sub: user._id, deviceId: userData.deviceId, sessionId: userData.sessionId },
-      "refreshTokenPrivateKey", {
-      expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
-    })
+    const accessToken_new = signJwt(
+      {
+        sub: user._id,
+        deviceId: userData.deviceId,
+        sessionId: userData.sessionId,
+      },
+      "accessTokenPrivateKey",
+      {
+        expiresIn: `${config.get<number>("accessTokenExpiresIn")}m`,
+      }
+    );
+    const refreshToken_new = signJwt(
+      {
+        sub: user._id,
+        deviceId: userData.deviceId,
+        sessionId: userData.sessionId,
+      },
+      "refreshTokenPrivateKey",
+      {
+        expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
+      }
+    );
 
-    await redisClient.set(`${userData.sub}:${userData.deviceId}`, refreshToken_new,
-    { EX: config.get<number>("refreshTokenExpiresIn") * 60 })
+    await redisClient.set(
+      `${userData.sub}:${userData.deviceId}`,
+      refreshToken_new,
+      { EX: config.get<number>("refreshTokenExpiresIn") * 60 }
+    );
 
     //TODO:
     // Сохраняем данные в базу. Заменить стрый токен на новый
@@ -236,15 +260,17 @@ class UserService {
     //   refreshToken
     // );
 
-    console.log("returned data: ",{
-      accessToken: accessToken_new, refreshToken: refreshToken_new,
+    console.log("returned data: ", {
+      accessToken: accessToken_new,
+      refreshToken: refreshToken_new,
       sub: user._id,
-      deviceId: userData.deviceId
-    } )
+      deviceId: userData.deviceId,
+    });
     return {
-      accessToken: accessToken_new, refreshToken: refreshToken_new,
+      accessToken: accessToken_new,
+      refreshToken: refreshToken_new,
       sub: user._id,
-      deviceId: userData.deviceId
+      deviceId: userData.deviceId,
     };
   }
   async getAllUsers() {
@@ -254,6 +280,11 @@ class UserService {
 
   async getUserInfo(id: string) {
     return await UserModel.findById(id);
+  }
+
+  async findUserById(id: string) {
+    const user = await UserModel.findById(id).lean();
+    return  omit(user, excludedFields);
   }
 }
 
