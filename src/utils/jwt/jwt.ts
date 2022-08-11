@@ -1,32 +1,30 @@
-import jwt, { sign, verify, SignOptions } from "jsonwebtoken";
-import config from "config";
+import { sign, verify, SignOptions } from "jsonwebtoken";
 import * as fs from "fs";
 import * as path from "path";
+import config from "config";
 
+/**
+ * Подпись jwt token
+ */
 export const signJwt = (
   payload: Object,
   key: "accessTokenPrivateKey" | "refreshTokenPrivateKey",
   options: SignOptions = {}
 ) => {
-  // const privateKey = Buffer.from(config.get<string>(key), "base64").toString(
-  //   "ascii"
-  // );
-  // const privateKey = fs.readFileSync(path.join(__dirname, './../../../private.key'));
+
+  //Получаем приватный ключ для создания токена
   const privateKey = fs
     .readFileSync(path.join(__dirname, `./keys/${key}.pem`))
     .toString("ascii");
 
-  return jwt.sign(payload, privateKey, {
+  return sign(payload, privateKey, {
     ...(options && options),
     algorithm: "RS256",
   });
 };
 
 /**
- *
- * @param token  string
- * @param key  'accessTokenPublicKey' | 'refreshTokenPublicKey'
- * @returns
+ * Проверка jwt token
  */
 export const verifyJwt = <T>(
   token: string,
@@ -34,15 +32,13 @@ export const verifyJwt = <T>(
   // options: SignOptions = {}
 ): T | null => {
   try {
-    console.log(":: DEBUG | verifyJwt | token :: ", token);
-    // const publicKey = Buffer.from(config.get<string>(key), "base64").toString(
-    //   "ascii"
-    // );
+
+    //Получаем публичный ключ для валидации токена
     const publicKey = fs
       .readFileSync(path.join(__dirname, `./keys/${key}.pem`))
       .toString("ascii");
 
-    return jwt.verify(token, publicKey, { algorithms: ["RS256"] }) as T;
+    return verify(token, publicKey, { algorithms: ["RS256"] }) as T;
   } catch (error) {
     return null;
   }

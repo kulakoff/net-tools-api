@@ -11,6 +11,7 @@ export const deserializeUser = async (
 ) => {
   try {
     // Get the token. req.headers or req.cookies
+    //Получаем токен доступа из cookie или заголовка авторизации
     let accessToken;
     if (
       req.headers.authorization &&
@@ -45,8 +46,6 @@ export const deserializeUser = async (
 
     //Find user by id from token payload
     const user = await userService.findUserById(tokenDecoded.sub);
-    console.log(":: user finf :: ", user)
-
     if (!user)
       return next(
         ApiError.UnauthorizedError(`User with that token no longer exist`)

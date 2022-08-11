@@ -15,7 +15,7 @@ import redisClient from "../dbConnections/redis";
 export const excludedFields = ["password"];
 
 //set minimal age for not used cookie data
-const logout = (res: Response) => {
+const setCookie = (res: Response) => {
   res.cookie("accessToken", "", { maxAge: 1 });
   res.cookie("refreshToken", "", { maxAge: 1 });
 };
@@ -137,16 +137,12 @@ class UserController {
     try {
       const { user, deviceId } = res.locals;
       const { refreshToken } = req.cookies;
-
-      console.log("logout ::: ", `${user._id}:${deviceId}`)
       await redisClient.del(`${user._id}:${deviceId}`);
-
       if (refreshToken) {
-        // const refreshToken = req.cookies.refreshToken;
-
         // Is refreshToken in db?
         const token = await userService.logout(refreshToken);
-        logout(res);
+        //Обновляем время жизни cookie на стороне клиента
+        setCookie(res);
         res.status(200).json({ status: "success" });
       } else {
         next(ApiError.BadRequest("Token not found"));
@@ -240,7 +236,24 @@ class UserController {
       const userInfoDto = new UserInfoDto(userInfo); //return id, email, isActivated
       console.log(userInfoDto);
       return res.json(userInfoDto);
-    } catch (error) {}
+    } catch (error) { }
   }
+
+  async userInformationFeature(req: Request, res: Response, next: NextFunction) {
+    try {
+      //Получаем 
+      const { user } = res.locals;
+      console.log(":: DEBUG :: userInformationFeature | ", user)
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          user,
+        },
+      });
+
+    } catch (error) { }
+  }
+
+
 }
 export default new UserController();

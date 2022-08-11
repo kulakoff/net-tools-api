@@ -7,6 +7,7 @@ deviceService
 class DeviceController {
   async getDevice(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log("DeviceController, getDevice ")
       if (
         req.query.type === "serialNumber" ||
         req.query.type === "macAddress"

@@ -16,7 +16,12 @@ authRouter
     userController.registration
   )
   .post("/login", validate(loginUserSchema), userController.login)
-  .post("/logout", deserializeUser, requireUser, userController.logout)
   .get("/activate/:link", userController.activate)
   .get("/refresh", userController.refreshFeature)
-  .get("/me", authMiddleware, userController.userInformation);
+
+//Доступно только авторизованным пользователям
+
+authRouter
+  .use(deserializeUser, requireUser)
+  .get("/me", userController.userInformationFeature)
+  .get("/logout", userController.logout)
