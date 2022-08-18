@@ -58,7 +58,14 @@ class MailService {
             },
         })
     }
-    //отправка отчета в сбытовую компанию
+
+    /**
+     * Отправка отчета в сбытовую компанию
+     * @param to email
+     * @param filename attach file name
+     * @param reportDate 
+     * @returns info send status
+     */
     async sendReport(to: string, filename: string, reportDate: string = new Date().toLocaleDateString('RU')) {
         const info: SentMessageInfo = await this.transporter.sendMail({
             from: '"ООО ЛАНТА, приборы учета" <kav@lanta-net.ru>', // sender address

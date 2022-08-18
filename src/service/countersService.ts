@@ -45,10 +45,12 @@ export interface IReportCompletion {
 }
 
 class CountersService {
-  //Вывод всех приборов учета
+
+  /** 
+   * Поиск всех доступных приборов учета
+   */
   async getAll() {
     try {
-      console.log("Вывод всех приборов учета");
       const allCoutners = await counters.findAll();
       return allCoutners;
     } catch (error) {
@@ -57,10 +59,13 @@ class CountersService {
     }
   }
 
-  //Вывод информации о приборе учета
+/**
+ * Поиск прибора учета по ID
+ * @param id 
+ * @returns 
+ */
   async getCounter(id: number) {
     try {
-      console.log("Вывод информации о приборе учета по его ID");
       const counterData = await counters.findByPk(id);
       return counterData;
     } catch (error) {
@@ -91,7 +96,6 @@ class CountersService {
     provider_id
   }: iCounterItem) {
     try {
-      console.log("CountersService.addCounter | Добавление прибора учета");
       const newCounter = await counters.create({
         serial_number,
         model,

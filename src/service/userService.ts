@@ -259,13 +259,6 @@ class UserService {
     //   tokens.refreshToken,
     //   refreshToken
     // );
-
-    console.log("returned data: ", {
-      accessToken: accessToken_new,
-      refreshToken: refreshToken_new,
-      sub: user._id,
-      deviceId: userData.deviceId,
-    });
     return {
       accessToken: accessToken_new,
       refreshToken: refreshToken_new,

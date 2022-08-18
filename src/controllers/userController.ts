@@ -164,7 +164,6 @@ class UserController {
 
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("REFRESH_ENDPOINT");
       // Get the refresh token from cookie
       const { refreshToken } = req.cookies;
       const userData = await userService.refresh(refreshToken);
@@ -184,18 +183,13 @@ class UserController {
 
   async refreshFeature(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("REFRESH_ENDPOINT :: feature");
       // Get the refresh token from cookie
       const {
         refreshToken,
         deviceId,
       }: { refreshToken: string; deviceId: string } = req.cookies;
-      console.log(":: DEBUG :: refreshToken ", refreshToken);
-      console.log(":: DEBUG :: deviceId ", deviceId);
 
       const userData = await userService.refreshFeature(refreshToken);
-
-      console.log(":: DEBUG | userData :: ", userData);
 
       // Отдаем cookie клиенту
       res.cookie(
@@ -243,7 +237,6 @@ class UserController {
     try {
       //Получаем 
       const { user } = res.locals;
-      console.log(":: DEBUG :: userInformationFeature | ", user)
       return res.status(200).json({
         status: 'success',
         data: {

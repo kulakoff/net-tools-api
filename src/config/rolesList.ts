@@ -1,3 +1,5 @@
+//TODO: роли указывать как код проли или название
+
 export enum ROLES_LIST {
   superAdmin = "superAdmin",
   admin = "admin",

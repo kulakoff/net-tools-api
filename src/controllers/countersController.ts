@@ -5,25 +5,19 @@ import { iCounterItem } from "../types/counters";
 
 // const metersService = require("./../services/")
 class CountersController {
-  // async sendCountersData(req: Request, res: Response, next: NextFunction) {
-  //   console.log(req.body);
-  //   res.json(req.body);
-  // }
+
   /**
-   *Получить все приборы учета
+   *Получить все доступные приборы учета
    */
-  async getItems(req: Request, res: Response, next: NextFunction) {
-    console.log("CountersController.getMeters");
-    console.log("Получение данных о всех счетчиках");
+   async getItems(req: Request, res: Response, next: NextFunction) {
     const counters = await CountersService.getAll();
     res.json(counters);
   }
+
   /**
-   *Найти прибора учета по id
+   *Поиск прибора учета по id
    */
   async getItem(req: Request, res: Response, next: NextFunction) {
-    console.log(req.params);
-
     if (req.params.id) {
       console.log("CountersController.getCountersItem");
       console.log(`Получение данных о счетчике с ID: ${req.params.id}`);
@@ -79,7 +73,7 @@ class CountersController {
         }
         else if (limit && (+id && +limit)) {
           const response = await CountersService.getCounterDataHistory({ id: +id, limit: +limit });
-         res.json(response)
+          res.json(response)
         }
         else {
           next(ApiError.BadRequest("Не верынй id"));
@@ -158,6 +152,12 @@ class CountersController {
     }
   }
 
+  /**
+   * Отправка показаний приборов учета
+   * @param req 
+   * @param res 
+   * @param next 
+   */
   async sendMeters(req: Request, res: Response, next: NextFunction) {
     try {
       console.log("sendMeters2: ", req.body);

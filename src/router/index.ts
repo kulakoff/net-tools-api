@@ -10,6 +10,8 @@ import reportController from "../controllers/reportController";
 import { deviceRouter } from "./device";
 import { authRouter } from "./auth";
 import { counterRouter } from "./counters";
+import { deserializeUser } from "../middlewares/deserializeUser";
+import { requireUser } from "../middlewares/requireUser";
 
 export const router = Router();
 
@@ -24,7 +26,8 @@ router.use("/device", deviceRouter);
 //Manage Counters and render report to provider
 router.use("/counters", counterRouter);
 
-router.use(authMiddleware);
+router.use(deserializeUser);
+router.use(requireUser);
 
 router.get(
   "/users",
@@ -33,7 +36,7 @@ router.get(
 );
 
 //Report
-router.post("/main/report", reportController.sendReport);
+router.post("/main/report",  reportController.sendReport);
 
 //DEMO & Testing
 router.get("/health", (req: Request, res: Response, next: NextFunction) => {

@@ -1,20 +1,19 @@
 import { Router } from "express";
 import countersController from "../controllers/countersController";
-import authMiddleware from "../middlewares/authMiddleware";
+// import authMiddleware from "../middlewares/authMiddleware";
+import { deserializeUser } from "../middlewares/deserializeUser";
+import { requireUser } from "../middlewares/requireUser";
+
 
 export const counterRouter = Router();
 
-counterRouter.use(authMiddleware)
 counterRouter
+    .use(deserializeUser, requireUser)
     .get("/", countersController.getItems)
-    .patch("/:id", countersController.setItem)
-    .get("/:id", countersController.getItem)
-    .post("/new", countersController.newItem)
     .delete("/", countersController.removeItem)
-    .post("/data", countersController.sendMeters) // Отправка показаний приборов учета
-    .get("/:id/data",
-        countersController.getItemData
-    )//Просмотр показаний по выбранного прибора учета
-    .get("/:id/history",
-        countersController.getItemDataHistory
-    ) //Вывод истории показаний прибора учета
+    .get("/:id", countersController.getItem)
+    .patch("/:id", countersController.setItem)
+    .get("/:id/data", countersController.getItemData)
+    .get("/:id/history", countersController.getItemDataHistory)
+    .post("/new", countersController.newItem)
+    .post("/data", countersController.sendMeters) 
