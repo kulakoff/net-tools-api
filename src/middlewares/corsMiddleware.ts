@@ -7,4 +7,6 @@ const corsMiddleware = cors({
   credentials: true,
   origin: allowedOrigins,
 });
+
+
 export default corsMiddleware;

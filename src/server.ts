@@ -9,6 +9,7 @@ import rateLimitMiddleware from "./middlewares/rateLimitMiddleware";
 import corsMiddleware from "./middlewares/corsMiddleware";
 import notMatchRoutes from "./middlewares/notMatchRoutes";
 import seeder from "./utils/seeder";
+import cors from "cors";
 
 const app: Application = express();
 

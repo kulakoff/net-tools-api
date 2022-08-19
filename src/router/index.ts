@@ -12,6 +12,7 @@ import { authRouter } from "./auth";
 import { counterRouter } from "./counters";
 import { deserializeUser } from "../middlewares/deserializeUser";
 import { requireUser } from "../middlewares/requireUser";
+import { restrictTo } from "../middlewares/restrictTo";
 
 export const router = Router();
 
@@ -26,18 +27,6 @@ router.use("/device", deviceRouter);
 //Manage Counters and render report to provider
 router.use("/counters", counterRouter);
 
-router.use(deserializeUser);
-router.use(requireUser);
-
-router.get(
-  "/users",
-  userRolesVerify(ROLES_LIST.admin, ROLES_LIST.superAdmin),
-  userController.getUsers
-);
-
-//Report
-router.post("/main/report",  reportController.sendReport);
-
 //DEMO & Testing
 router.get("/health", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
@@ -46,14 +35,20 @@ router.get("/health", (req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-router.post(
-  "/demo/counters/data",
-  authMiddleware,
-  countersController.sendMeters2
+
+
+router.use(deserializeUser);
+router.use(requireUser);
+
+router.get(
+  "/users",
+  deserializeUser,requireUser,
+  // restrictTo(ROLES_LIST.admin),
+  userRolesVerify(ROLES_LIST.admin),
+  userController.getUsers
 );
 
-router.post(
-  "/demo/counters/data/id",
-  authMiddleware,
-  countersController.sendMetersById
-);
+//Report
+router.post("/main/report",  reportController.sendReport);
+
+
