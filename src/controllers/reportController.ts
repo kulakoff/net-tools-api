@@ -1,3 +1,4 @@
+require("dotenv").config();
 import { rejects } from "assert";
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../exceptions/apiError";
@@ -20,6 +21,8 @@ export interface IActionBody {
   provider_id: number;
   action: ActionTypeValue;
 }
+
+const emailReportAddress: string = process.env.MAIL_REPORT_ADDRESS_TO || "example_email",
 
 class ReportController {
   async sendReport(req: Request, res: Response, next: NextFunction) {
@@ -69,7 +72,7 @@ class ReportController {
                     //отправка на почту
                     // const sendEmail = await mailApiService.sendReportMail('anton.kulakoff@ya.ru', renderResult.fileName)
                     const sendEmail_nodemailer = await mailService.sendReport(
-                      "anton.kulakoff@ya.ru",
+                      emailReportAddress,
                       renderResult.fileName
                     );
 
@@ -90,7 +93,6 @@ class ReportController {
           break
         // отправляем данные для рендера отчета
         // await reportService.renderReport();
-
 
         //получение данных из ZABBIX API и последующая запись в БД
         case "REPORT_GET_DATA":
