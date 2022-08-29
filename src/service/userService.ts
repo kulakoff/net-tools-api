@@ -199,19 +199,17 @@ class UserService {
       sessionId: string;
     }>(refreshToken, "refreshTokenPublicKey");
     if (!userData) {
-      throw ApiError.Forbidden("no userData verify");
+      throw ApiError.Forbidden("Ошибка проверки token",["Refresh token не прошел проверку"]);
     }
 
-    // console.log(":: DEGUG | decoded :: ", userData)
-    // const userData: any = tokenService.validateRefreshToken(refreshToken);
-    // Поиск токена в базе
-    const existToken = redisClient.get(
+    // Поиск токена в БД
+    const existToken = await redisClient.get(
       `${userData?.sub}:${userData?.deviceId}`
     );
+
     if (!existToken) {
-      throw ApiError.Forbidden("no existToken in redis ");
+      throw ApiError.Forbidden("Ошибка проверки token", ["Refresh token не найден в БД"]);
     }
-    // const tokenFromDb = await tokenService.findToken(refreshToken);
 
     //TODO
     //проверка скомпрометированных токенов
