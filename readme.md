@@ -8,6 +8,10 @@ sequelize-auto.json
 npm run dev:build_db_models
 ```
 
+#Создать директорию для ключей
+```
+mkdir ./src/utils/jwt/keys/
+
 #Приватный RSA ключ для генерации refresh token
 ```
 openssl genrsa -out ./src/utils/jwt/keys/refreshTokenPrivateKey.pem 2048

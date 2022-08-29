@@ -61,18 +61,25 @@ class UserController {
         );
       }
       const { firstName, lastName, email, phoneNumber, password } = req.body;
-      const userData = await userService.registration({
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
-        password,
+      let { deviceId }: { deviceId: string } = req.cookies;
+      if (!deviceId) deviceId = uuidv4();
+      
+      const { accessToken, refreshToken, sub } = await userService.registration(
+        {
+          form: { firstName, lastName, email, phoneNumber, password },
+          deviceId,
+        }
+      );
+
+      // Отдаем cookie клиенту
+      res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
+      res.cookie("accessToken", accessToken, accessTokenCookieOptions);
+      res.cookie("deviceId", deviceId, deviceIdCookieOptions);
+      res.json({
+        deviceId,
+        sub,
+        accessToken,
       });
-      res.cookie("refreshToken", userData.refreshToken, {
-        maxAge: 7 * 24 * 60 * 1000, //7 day
-        httpOnly: true,
-      });
-      res.json(userData);
     } catch (error) {
       next(error);
     }

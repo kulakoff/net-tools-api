@@ -15,18 +15,18 @@ import { signJwt, verifyJwt } from "../utils/jwt/jwt";
 import config from "config";
 import { excludedFields } from "../controllers/userController";
 
+export interface IRegistrationProps {
+  form: IRegistrationFormData;
+  deviceId: string;
+}
+
 class UserService {
-  async registration({
-    firstName,
-    lastName,
-    email,
-    phoneNumber,
-    password,
-  }: IRegistrationFormData) {
-    const addUserRole = new RolesModel({ value: "user" });
-    const addAdminRole = new RolesModel({ value: "admin" });
-    await addUserRole.save();
-    await addAdminRole.save();
+  async registration({ form, deviceId }: IRegistrationProps) {
+    const { firstName, lastName, email, phoneNumber, password } = form;
+    // const addUserRole = new RolesModel({ value: "user" });
+    // const addAdminRole = new RolesModel({ value: "admin" });
+    // await addUserRole.save();
+    // await addAdminRole.save();
     const userRole = await RolesModel.findOne({ value: "user" });
 
     const candidate = await UserModel.findOne({ email, phoneNumber });
@@ -53,9 +53,7 @@ class UserService {
       roles: [userRole.value],
     });
 
-    //TODO:
-    //
-    // Сделать интеграцияю с почтовым сервисом для отправки писем с подтверждением регистрации. Яндекс и прочие сервисы банят
+    //TODO: Сделать интеграцияю с почтовым сервисом для отправки писем с подтверждением регистрации. Яндекс и прочие сервисы банят
     //
     //отправка письма для подтверждения регистрации
     await mailApiService.sendActivationMail(
@@ -64,12 +62,17 @@ class UserService {
     );
 
     //генерируем пару токенов
-    const userDto = new UserDto(user); //return id, email, isActivated
-    const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+    //Token payload
+    const tokenPayload = { sub: user._id, deviceId };
+    //make tokens
+    const { accessToken, refreshToken } =
+      await tokenService.generateTokensFeature({ ...tokenPayload });
+
     return {
-      ...tokens,
-      user: userDto,
+      accessToken,
+      refreshToken,
+      deviceId,
+      sub: user._id,
     };
   }
 
@@ -277,7 +280,7 @@ class UserService {
 
   async findUserById(id: string) {
     const user = await UserModel.findById(id).lean();
-    return  omit(user, excludedFields);
+    return omit(user, excludedFields);
   }
 }
 

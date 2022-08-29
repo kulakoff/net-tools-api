@@ -22,7 +22,8 @@ export interface IActionBody {
   action: ActionTypeValue;
 }
 
-const emailReportAddress: string = process.env.MAIL_REPORT_ADDRESS_TO || "example_email",
+const emailReportAddress: string =
+  process.env.MAIL_REPORT_ADDRESS_TO || "example_email";
 
 class ReportController {
   async sendReport(req: Request, res: Response, next: NextFunction) {
@@ -37,21 +38,32 @@ class ReportController {
           console.log("Проверка данных перед отправкой отчета");
           const reportFromDb = await CountersService.getReport();
           res.json(reportFromDb);
-          break
-
+          break;
 
         case "REPORT_SEND":
           //сделать запись в тамлице reports об успешно отпраленном отчете //2 сгенерировать файл отчета и отправить на почту в сбытовую компанию
-          console.log("Выполнить отправку отчета в сбытовую компанию", customer_id);
+          console.log(
+            "Выполнить отправку отчета в сбытовую компанию",
+            customer_id
+          );
           res.json({
             message: "Выполнить отправку отчета в сбытовую компанию",
           });
-          break
+          break;
 
         case "REPORT_SEND_TO_EMAIL":
-          const checkReport: any = await CountersService.reportCompletionCheck({ customer_id: 12, provider_id: 1 })
+          const checkReport: any = await CountersService.reportCompletionCheck({
+            customer_id: 12,
+            provider_id: 1,
+          });
           if (checkReport) {
-            next(ApiError.Forbidden(`Отчет ранее был отправлен: ${new Date(checkReport.timestamp).toLocaleString("RU")}`))
+            next(
+              ApiError.Forbidden(
+                `Отчет ранее был отправлен: ${new Date(
+                  checkReport.timestamp
+                ).toLocaleString("RU")}`
+              )
+            );
           } else {
             //Получаем  данные из БД
             const report = await CountersService.getReport();
@@ -77,7 +89,10 @@ class ReportController {
                     );
 
                     //TODO переделать костыль. Создает запись в БД об успешной отправке письма в  сбытовую компанию
-                    await CountersService.reportCompletion({ customer_id: 12, provider_id: 1 })
+                    await CountersService.reportCompletion({
+                      customer_id: 12,
+                      provider_id: 1,
+                    });
 
                     res.json({
                       message: "report sended",
@@ -89,53 +104,56 @@ class ReportController {
             }
           }
 
-
-          break
+          break;
         // отправляем данные для рендера отчета
         // await reportService.renderReport();
 
         //получение данных из ZABBIX API и последующая запись в БД
         case "REPORT_GET_DATA":
-          console.log("REPORT_GET_DATA")
-          await zabbixApiService.getCountersTelemetry()
+          console.log("REPORT_GET_DATA");
+          await zabbixApiService
+            .getCountersTelemetry()
             //Ответ от API
             .then((zResponse) => {
               //вохвращаем true если все данные полкченные от API были сохранены в бд
-              return zResponse && Promise.all(
-                zResponse?.map(async (item) => {
-                  const { serialNumber, value } = item;
-                  return await CountersService.saveCounterData({
-                    serial_number: serialNumber,
-                    value: value.toString(),
-                  }).then(saveResp => {
-                    //вернем статус для каждого сохраненного элемента
-                    return saveResp._options.isNewRecord
+              return (
+                zResponse &&
+                Promise.all(
+                  zResponse?.map(async (item) => {
+                    const { serialNumber, value } = item;
+                    return await CountersService.saveCounterData({
+                      serial_number: serialNumber,
+                      value: value.toString(),
+                    }).then((saveResp) => {
+                      //вернем статус для каждого сохраненного элемента
+                      return saveResp._options.isNewRecord;
+                    });
                   })
-                })
-              )
-                .then(promiseData => {
-                  const checker: boolean = promiseData.every(element => element)
+                ).then((promiseData) => {
+                  const checker: boolean = promiseData.every(
+                    (element) => element
+                  );
                   if (checker) {
                     return {
-                      status: "ok", message: "zRespone saved to db"
-                    }
-                  } else { throw new Error("непредвиденная ошибка!") }
+                      status: "ok",
+                      message: "zRespone saved to db",
+                    };
+                  } else {
+                    throw new Error("непредвиденная ошибка!");
+                  }
                 })
+              );
             })
-            .then(data => {
+            .then((data) => {
               // console.log("FINALITY DATA: ", data)
-              res.json(data)
+              res.json(data);
             })
-            .catch(console.log)
-          break
-
+            .catch(console.log);
+          break;
 
         default:
           next(ApiError.BadRequest("action fail"));
-
       }
-
-
     } catch (error) {
       console.log(error);
       next(ApiError.BadRequest("Непредвиденная ошибка"));
