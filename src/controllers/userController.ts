@@ -18,6 +18,7 @@ export const excludedFields = ["password"];
 const setCookie = (res: Response) => {
   res.cookie("accessToken", "", { maxAge: 1 });
   res.cookie("refreshToken", "", { maxAge: 1 });
+  res.cookie("loggedIn", "", { maxAge: 1 });
 };
 
 const clientUrl: string = process.env.CLIENT_URL || "http://192.168.13.20:3000"; // редирект после активации на этот урл
@@ -63,7 +64,7 @@ class UserController {
       const { firstName, lastName, email, phoneNumber, password } = req.body;
       let { deviceId }: { deviceId: string } = req.cookies;
       if (!deviceId) deviceId = uuidv4();
-      
+
       const { accessToken, refreshToken, sub } = await userService.registration(
         {
           form: { firstName, lastName, email, phoneNumber, password },
@@ -75,6 +76,11 @@ class UserController {
       res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
       res.cookie("accessToken", accessToken, accessTokenCookieOptions);
       res.cookie("deviceId", deviceId, deviceIdCookieOptions);
+      res.cookie("loggedIn", true, {
+        ...refreshTokenCookieOptions,
+        httpOnly: false,
+      });
+
       res.json({
         deviceId,
         sub,
@@ -108,6 +114,10 @@ class UserController {
       );
       res.cookie("accessToken", userData.accessToken, accessTokenCookieOptions);
       res.cookie("deviceId", userData.deviceId, deviceIdCookieOptions);
+      res.cookie("loggedIn", true, {
+        ...refreshTokenCookieOptions,
+        httpOnly: false,
+      });
 
       res.json({
         deviceId,
@@ -206,6 +216,10 @@ class UserController {
       );
       res.cookie("accessToken", userData.accessToken, accessTokenCookieOptions);
       res.cookie("deviceId", userData.deviceId, deviceIdCookieOptions);
+      res.cookie("loggedIn", true, {
+        ...refreshTokenCookieOptions,
+        httpOnly: false,
+      });
 
       res.json({
         deviceId,
@@ -237,23 +251,24 @@ class UserController {
       const userInfoDto = new UserInfoDto(userInfo); //return id, email, isActivated
       console.log(userInfoDto);
       return res.json(userInfoDto);
-    } catch (error) { }
+    } catch (error) {}
   }
 
-  async userInformationFeature(req: Request, res: Response, next: NextFunction) {
+  async userInformationFeature(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      //Получаем 
+      //Получаем
       const { user } = res.locals;
       return res.status(200).json({
-        status: 'success',
+        status: "success",
         data: {
           user,
         },
       });
-
-    } catch (error) { }
+    } catch (error) {}
   }
-
-
 }
 export default new UserController();
