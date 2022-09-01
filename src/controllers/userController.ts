@@ -8,7 +8,6 @@ import { Request, Response, NextFunction, CookieOptions } from "express";
 import ApiError from "./../exceptions/apiError";
 import { UserInfoDto } from "../dtos/userDto";
 import { LoginUserInput } from "../schema/user.schema";
-import { appConfig } from "../config";
 import redisClient from "../dbConnections/redis";
 
 // Exclude this fields from the response
