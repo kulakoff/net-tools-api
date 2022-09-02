@@ -17,11 +17,11 @@ authRouter
   )
   .post("/login", validate(loginUserSchema), userController.login)
   .get("/activate/:link", userController.activate)
-  .get("/refresh", userController.refreshFeature)
+  .get("/refresh", userController.refreshFeature);
 
 //Доступно только авторизованным пользователям
 
 authRouter
   .use(deserializeUser, requireUser)
   .get("/me", userController.userInformationFeature)
-  .get("/logout", userController.logout)
+  .post("/logout", userController.logout);
