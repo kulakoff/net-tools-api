@@ -14,7 +14,7 @@ import { restrictTo } from '../middlewares/restrictTo'
 
 export const deviceRouter = Router();
 
-deviceRouter.use(deserializeUser, requireUser, restrictTo(ROLES_LIST.admin));
+deviceRouter.use(deserializeUser, requireUser, restrictTo(ROLES_LIST.user));
 deviceRouter
   .get("/", deviceController.getDevice) //Поиск CPE по MAC / SN (поиск по SN пока не реализован)
   .post("/", deviceController.setDevice); //Изменить шаблон CPE
