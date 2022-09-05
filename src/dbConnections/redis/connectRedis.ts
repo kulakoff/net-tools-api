@@ -9,10 +9,12 @@ const redisClient = createClient({
 const connectRedis = async () => {
   try {
     await redisClient.connect();
-    console.log("Redis client connected...");
+    console.log(
+      "Redis :: client connected :: " + new Date().toLocaleString("RU")
+    );
   } catch (err: any) {
     console.log(err.message);
-    //reconnect to redis
+    // reconnect to redis
     setTimeout(connectRedis, 5000);
   }
 };
