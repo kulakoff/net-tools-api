@@ -1,6 +1,7 @@
 package-lock.json
 ##temp render report directory
-reports
+src/reports/*
+reports/*
 dist
 node_modules
 ##

@@ -29,6 +29,8 @@ app.use(morgan(appConfig.env === "development" ? "dev" : "short"));
 
 // 5. Cors
 app.use(corsMiddleware);
+// app.use(cors({credentials:true}));
+// app.options("*", cors());
 
 // 6. Rate limit
 app.use(rateLimitMiddleware);
