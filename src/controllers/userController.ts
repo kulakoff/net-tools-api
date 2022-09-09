@@ -248,7 +248,6 @@ class UserController {
       const { id } = req.body.user;
       let userInfo = await userService.getUserInfo(id);
       const userInfoDto = new UserInfoDto(userInfo); //return id, email, isActivated
-      console.log(userInfoDto);
       return res.json(userInfoDto);
     } catch (error) {}
   }

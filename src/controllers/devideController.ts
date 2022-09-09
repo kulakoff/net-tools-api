@@ -1,13 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../exceptions/apiError";
-import
-deviceService
-  from "../service/deviceService";
+import deviceService from "../service/deviceService";
 
 class DeviceController {
   async getDevice(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("DeviceController, getDevice ")
       if (
         req.query.type === "serialNumber" ||
         req.query.type === "macAddress"
@@ -15,7 +12,6 @@ class DeviceController {
         const { type, value } = req.query;
         switch (type) {
           case "serialNumber":
-            console.log("case serialNumber");
             const deviceDataBySN = await deviceService.getDeviceBySN(value);
             return res.json(deviceDataBySN);
           case "macAddress":
@@ -41,14 +37,9 @@ class DeviceController {
 
   async setDevice(req: Request, res: Response, next: NextFunction) {
     //TODO: сделать POST запрос genieacs api, задача сброс настроек
-    console.log("req.body: ",req.body);
-    
     try {
-      console.log("POST data: ", req.body);
       //TODO: переделать проверку body
-      console.log("length: >>> ",Object.keys(req.body).length)
-      if (Object.keys(req.body).length === 4) {
-        console.log("REQ keys: 3");
+      if (Object.keys(req.body).length === 3) {
         const updatedDevice = await deviceService.setDevice(req.body);
         return res.json(updatedDevice);
       }

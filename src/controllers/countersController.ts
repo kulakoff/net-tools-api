@@ -5,11 +5,10 @@ import { iCounterItem } from "../types/counters";
 
 // const metersService = require("./../services/")
 class CountersController {
-
   /**
    *Получить все доступные приборы учета
    */
-   async getItems(req: Request, res: Response, next: NextFunction) {
+  async getItems(req: Request, res: Response, next: NextFunction) {
     const counters = await CountersService.getAll();
     res.json(counters);
   }
@@ -46,7 +45,7 @@ class CountersController {
           // next(ApiError.BadRequest("timestamp not found"))
           if (+id) {
             const response = await CountersService.getCounterData(+id);
-            res.json(response)
+            res.json(response);
           } else {
             next(ApiError.BadRequest("Не верынй id"));
           }
@@ -68,14 +67,17 @@ class CountersController {
         const { id } = req.params;
         const { limit } = req.query;
         if (+id && !limit) {
-          const response = await CountersService.getCounterDataHistory({ id: +id });
-          res.json(response)
-        }
-        else if (limit && (+id && +limit)) {
-          const response = await CountersService.getCounterDataHistory({ id: +id, limit: +limit });
-          res.json(response)
-        }
-        else {
+          const response = await CountersService.getCounterDataHistory({
+            id: +id,
+          });
+          res.json(response);
+        } else if (limit && +id && +limit) {
+          const response = await CountersService.getCounterDataHistory({
+            id: +id,
+            limit: +limit,
+          });
+          res.json(response);
+        } else {
           next(ApiError.BadRequest("Не верынй id"));
         }
       }
@@ -85,8 +87,6 @@ class CountersController {
       next(ApiError.BadRequest("Непредвиденная ошибка"));
     }
   }
-
-
 
   /**
    *Изменить данные прибора учета
@@ -154,9 +154,9 @@ class CountersController {
 
   /**
    * Отправка показаний приборов учета
-   * @param req 
-   * @param res 
-   * @param next 
+   * @param req
+   * @param res
+   * @param next
    */
   async sendMeters(req: Request, res: Response, next: NextFunction) {
     try {
@@ -172,7 +172,11 @@ class CountersController {
           serial_number,
           value,
         });
-        res.json(response);
+        console.log("RESPONSE TO SEND DATA: ", response);
+        response &&
+          res
+            .status(201)
+            .json({ message: "Показания прибора учета успешно приняты" });
       }
       next(ApiError.BadRequest("Не верыное тело запроса"));
     } catch (error) {

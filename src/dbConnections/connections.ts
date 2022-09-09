@@ -13,8 +13,11 @@ const makeNewConnection = (uri: string) => {
   const db = createConnection(uri, mongoseeOptions);
 
   db.on("error", (error) => {
-    // console.log(error);
-    console.log(`MongoDB :: connection ${db.name} :: ${new Date().toLocaleString("RU")} :: ${JSON.stringify(error)}`);
+    console.log(
+      `MongoDB :: connection ${db.name} :: ${new Date().toLocaleString(
+        "RU"
+      )} :: ${JSON.stringify(error)}`
+    );
     db.close().catch(() =>
       // console.log(`MongoDB :: failed to close connection ${this.name}`)
       console.log("MongoDB :: failed to close connection ", error)
@@ -22,7 +25,11 @@ const makeNewConnection = (uri: string) => {
   });
 
   db.on("connected", () => {
-    console.log(`MongoDB :: clinet connected to db ${db.name} :: ${new Date().toLocaleString("RU")}`);
+    console.log(
+      `MongoDB :: clinet connected to db ${
+        db.name
+      } :: ${new Date().toLocaleString("RU")}`
+    );
 
     // db.set("debug", function (col:any, method:any, query:any, doc:any) {
     //   console.log(
@@ -30,11 +37,13 @@ const makeNewConnection = (uri: string) => {
     //       query
     //     )},${JSON.stringify(doc)})`
     //   );
-    // });  
+    // });
   });
 
   db.on("disconnected", () => {
-    console.log(`MongoDB :: disconnected ${db.name} :: ${new Date().toLocaleString("RU")}`);
+    console.log(
+      `MongoDB :: disconnected ${db.name} :: ${new Date().toLocaleString("RU")}`
+    );
   });
 
   return db;

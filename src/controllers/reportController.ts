@@ -28,29 +28,15 @@ const emailReportAddress: string =
 class ReportController {
   async sendReport(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("sendReport >>>");
-
       const { action, customer_id, provider_id }: IActionBody = req.body;
       console.log("action", action);
       switch (action) {
         case "REPORT_CHECK_DATA":
-          //1 сделать выборку из БД с данными для отчета
+          // сделать выборку из БД с данными для отчета
           console.log("Проверка данных перед отправкой отчета");
           const reportFromDb = await CountersService.getReport();
           res.json(reportFromDb);
           break;
-
-        case "REPORT_SEND":
-          //сделать запись в тамлице reports об успешно отпраленном отчете //2 сгенерировать файл отчета и отправить на почту в сбытовую компанию
-          console.log(
-            "Выполнить отправку отчета в сбытовую компанию",
-            customer_id
-          );
-          res.json({
-            message: "Выполнить отправку отчета в сбытовую компанию",
-          });
-          break;
-
         case "REPORT_SEND_TO_EMAIL":
           const checkReport: any = await CountersService.reportCompletionCheck({
             customer_id: 12,
@@ -67,16 +53,19 @@ class ReportController {
           } else {
             //Получаем  данные из БД
             const report = await CountersService.getReport();
-            // Дополняем данные из БД для фломарования отчета
+            // Дополняем данные из БД для формирования отчета
             if (report) {
-              //TODO: добавить
+              //TODO: переделать
               const makeReportData: IDataForReport = {
                 user: "ООО ЛАНТА",
                 currentDate: new Date().toLocaleDateString("RU"),
                 meters: report,
               };
 
-              //создаем файл отчета
+              /*создаем файл отчета
+              Добавить удаление старых файлов отчета в crone
+              Запрос  показаний из ZABBIX, удаление файла отчета за  предыдущие месяцы
+              */
               await reportService
                 .renderReport(makeReportData)
                 .then(async (renderResult: any) => {
@@ -88,7 +77,9 @@ class ReportController {
                       renderResult.fileName
                     );
 
-                    //TODO переделать костыль. Создает запись в БД об успешной отправке письма в  сбытовую компанию
+                    /*TODO переделать костыль. Создает запись в БД об успешной отправке письма в  сбытовую компанию
+                    получать данные о сбытовой компании из БД
+                    */
                     await CountersService.reportCompletion({
                       customer_id: 12,
                       provider_id: 1,
