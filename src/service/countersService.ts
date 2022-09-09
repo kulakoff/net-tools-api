@@ -128,7 +128,6 @@ class CountersService {
    */
   async getCounterData(id: number) {
     try {
-      console.log("Вывод показаний прибора учета");
       const result = await counters.findAll({
         where: { id },
         include: [

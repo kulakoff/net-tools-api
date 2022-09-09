@@ -1,8 +1,8 @@
 // const Router = require("express").Router;
 import { Router, Request, Response, NextFunction } from "express";
 import userController from "./../controllers/userController";
-import countersController from "../controllers/countersController";
-import authMiddleware from "../middlewares/authMiddleware";
+// import countersController from "../controllers/countersController";
+// import authMiddleware from "../middlewares/authMiddleware";
 import userRolesVerify from "../middlewares/userRolesVerify";
 import { ROLES_LIST } from "../config/rolesList";
 import reportController from "../controllers/reportController";
@@ -12,7 +12,7 @@ import { authRouter } from "./auth";
 import { counterRouter } from "./counters";
 import { deserializeUser } from "../middlewares/deserializeUser";
 import { requireUser } from "../middlewares/requireUser";
-import { restrictTo } from "../middlewares/restrictTo";
+// import { restrictTo } from "../middlewares/restrictTo";
 
 export const router = Router();
 
@@ -49,6 +49,6 @@ router.get(
 );
 
 //Report
-router.post("/main/report",  reportController.sendReport);
+router.post("/report",  reportController.sendReport);
 
 

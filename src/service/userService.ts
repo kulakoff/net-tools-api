@@ -219,11 +219,6 @@ class UserService {
 
     // Поиск пользователя в БД по данным из токена
     const user = await UserModel.findById(userData.sub);
-    // console.log("|UserService.logout | user : ", user);
-    // Создаем payload для токена который содержит данные о пользователе (return id, email, isActivated)
-    const userDto = new UserDto(user); //return id, email, isActivated
-    // const tokens = tokenService.generateTokens({ ...userDto });
-
     const accessToken_new = signJwt(
       {
         sub: user._id,
