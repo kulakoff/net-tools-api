@@ -39,8 +39,8 @@ class MailService {
   ) {
     const info: SentMessageInfo = await this.transporter.sendMail({
       from: `"ООО ЛАНТА, приборы учета" <${sntpUser}>`, // адрес отправителя
-      // to: `${to}, ${emailReplyTo}, ${emailCopy1}`, // список получателей
-      to: `${to}`, // TODO:  вернуть прежнюю строку с получателями
+      to: `${to}, ${emailReplyTo}, ${emailCopy1}`, // список получателей
+      // to: `${to}`, // TODO:  вернуть прежнюю строку с получателями
       replyTo: emailReplyTo, // адрес для ответа
       bcc: emailBcc, // скрытая копия
       subject: `ООО ЛАНТА, показания приборов учета ${reportDate} ✔`, // Subject line

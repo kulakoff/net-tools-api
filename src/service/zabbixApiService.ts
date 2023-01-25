@@ -13,7 +13,7 @@ const ZABBIX_CONNECTION = {
 const zbxFilterName = {
   output: "extend",
   filter: { name: "ERD" },
-  limit: 10,
+  limit: 15,
 };
 
 class ZabbixApiService {
@@ -33,17 +33,24 @@ class ZabbixApiService {
         ) / 1000;
 
       const z = new ZabbixAPI(ZABBIX_CONNECTION.host);
+
       //Получаем массив с показниями приборов учета.
       //будут опрошены только те у уого заполнены поля selectInventory
       const data: IResponseCounterItem[] = await z.user
         .login(ZABBIX_CONNECTION.user, ZABBIX_CONNECTION.password)
-        .then((data: any) => data)
+        .then((data: any) => {
+          // console.log("::DEBUG| ", data);
+          return data;
+        })
+        //Получаем groupId по фильтру
         .then(
           async () =>
-            await z.host.group
-              .get(zbxFilterName)
-              .then((result: any) => result[0].groupid)
+            await z.host.group.get(zbxFilterName).then((result: any) => {
+              // console.log("Host Group >>> ", JSON.stringify(result));
+              return result[0].groupid;
+            })
         )
+        //G Получаем список хостов по groupId
         .then(async (groupId: number) => {
           const PARAMS_GET_BY_GROUP = {
             groupids: groupId,
@@ -60,42 +67,50 @@ class ZabbixApiService {
             withInventory: 4,
             sortfield: "hostid",
           };
-          return await z.host
-            .get(PARAMS_GET_BY_GROUP)
-            .then((data: any) => data);
+          return await z.host.get(PARAMS_GET_BY_GROUP).then((data: any) => {
+            // console.log("Hosts >> :", JSON.stringify(data));
+            return data;
+          });
         })
-        .then(async (getHosts: any) => {
+
+        .then(async (hosts: any) => {
           return await Promise.all(
             //модифицировать массив getHosts добавив него показания счетчиков за указанный период...
-            await getHosts.map(async (mapData: any) => {
+            await hosts.map(async (mapData: any) => {
               // let container = new Array();
 
               //получение itemId запрашиваемоо элемента
-              let getItemID = await z.item
+              let itemId = await z.item
                 .get({
                   hostids: mapData.hostid,
                   output: ["hostid", "itemid", "name"],
                   filter: { name: "En T" },
                   limit: 1,
                 })
-                .then((res: any) => res[0].itemid);
+                .then((res: any) => {
+                  console.log("::DEBUG|itemId", res);
+                  return res[0].itemid;
+                });
 
-              // console.log(getItemID)
+              console.log("::DEBUG|-itemId-| ", itemId);
 
               //получение значений элемента в заданный период времени
               let getItemValues = await z.history
                 .get({
                   output: "extend",
                   history: 0,
-                  itemids: getItemID,
+                  itemids: itemId,
                   time_from: reqMoment,
                   time_till: reqMoment30,
                   sortfield: "clock",
                   limit: 1,
                 })
-                .then((res: any) => res[0]);
+                .then((res: any) => {
+                  console.log("::DEBUG|getItemValues| ", res);
+                  return res[0];
+                });
 
-              // console.log(getItemValues)
+              // console.log("getItemValues: >>>", getItemValues);
 
               //TODO переделать!
               //формируем итоговый объект
