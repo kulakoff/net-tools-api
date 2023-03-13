@@ -1,4 +1,4 @@
-version: '3.6'
+version: '3.8'
 
 services:
   api_db_mongo:
@@ -8,14 +8,22 @@ services:
       - "27017"
     volumes:
       - mongodb:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${DOCKER_MONGO_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${DOCKER_MONGO_PASSWORD}"
+
 
   api_db_mysql:
     image: mysql
     container_name: api_db_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DOCKER_MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${DOCKER_MYSQL_DATABASE}"
     ports:
       - "3306"
     volumes:
       - mysql:/var/lib/mysql
+
   api_db_redis:
     image: redis
     container_name: api_db_redis
